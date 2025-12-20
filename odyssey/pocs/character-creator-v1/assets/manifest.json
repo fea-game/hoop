@@ -1,0 +1,23 @@
+{
+  "poses": {
+    "shot": {
+      "average": "assets/poses/shot_average.svg"
+    }
+  },
+  "hair": {
+    "short": "assets/hair/short.svg"
+  },
+  "jersey": {
+    "base": "assets/jersey/base.svg"
+  },
+  "panel_templates": {
+    "shot": [
+      {
+        "pose": "shot",
+        "body_type": "average",
+        "hair": "short",
+        "jersey": "base"
+      }
+    ]
+  }
+}

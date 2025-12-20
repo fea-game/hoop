@@ -1,0 +1,19 @@
+{
+  "name": "match-panel-composer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "canvas": "^3.2.0"
+  },
+  "devDependencies": {
+    "vite": "^7.2.2"
+  }
+}

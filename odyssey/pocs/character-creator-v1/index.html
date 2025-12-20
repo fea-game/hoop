@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Match Panel Composer</title>
+  </head>
+  <body>
+    <h1>Compose Match Panel</h1>
+    <button id="composeBtn">Compose and Download Panel</button>
+    <canvas
+      id="canvas"
+      width="128"
+      height="256"
+      style="border: 1px solid black"
+    ></canvas>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const WIDTH = 128;
+      const HEIGHT = 256;
+
+      async function loadImage(src) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous"; // Handle CORS if needed
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = src;
+        });
+      }
+
+      async function composePanel(panelDef) {
+        // Clear canvas
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+        // Load and draw pose (body)
+        const poseImg = await loadImage(panelDef.pose);
+        ctx.drawImage(poseImg, 0, 0, WIDTH, HEIGHT);
+
+        // Load and draw jersey
+        const jerseyImg = await loadImage(panelDef.jersey);
+        ctx.drawImage(jerseyImg, 0, 0, WIDTH, HEIGHT);
+
+        // Load and draw hair
+        const hairImg = await loadImage(panelDef.hair);
+        ctx.drawImage(hairImg, 0, 0, WIDTH, HEIGHT);
+      }
+
+      async function downloadCanvas() {
+        canvas.toBlob((blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "shot_panel.png";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, "image/png");
+      }
+
+      document
+        .getElementById("composeBtn")
+        .addEventListener("click", async () => {
+          try {
+            // Load manifest
+            const manifestResponse = await fetch("./assets/manifest.json");
+            const manifest = await manifestResponse.json();
+
+            const panel = manifest.panel_templates.shot[0];
+            // Get full paths
+            const posePath = manifest.poses[panel.pose][panel.body_type];
+            const jerseyPath = manifest.jersey[panel.jersey];
+            const hairPath = manifest.hair[panel.hair];
+
+            await composePanel({
+              pose: posePath,
+              jersey: jerseyPath,
+              hair: hairPath,
+            });
+            await downloadCanvas();
+            alert("Panel composed and downloaded!");
+          } catch (error) {
+            console.error("Error composing panel:", error);
+            alert("Error: " + error.message);
+          }
+        });
+    </script>
+  </body>
+</html>
