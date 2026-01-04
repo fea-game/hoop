@@ -212,7 +212,7 @@ The table below summarizes the available data from each site, with a rating from
 
 | Rating | Website | Seasons | Notes |
 | --- | --- | --- | --- |
-| 9/10 | [pbpstats.com](https://www.pbpstats.com/) | 2000-Present | Provides a wide range of statistics from play-by-play data, including On/Off stats, possession-based stats, and game logs for the NBA, WNBA, and G-League, dating back to the 2000-01 season. It also has a documented API. |
+| 9/10 | [pbpstats.com](https://www.pbpstats.com/) | 1996-Present | Provides a wide range of statistics from play-by-play data, including On/Off stats, possession-based stats, and game logs for the NBA, WNBA, and G-League, dating back to the 2000-01 season. It also has a documented API. |
 | 7/10 | [nbastuffer.com](https://www.nbastuffer.com/) | 2016-Present | Offers team and player stats, including power rankings, box score-like statistics, and some advanced metrics. However, the focus is primarily on the current and most recent seasons. |
 | 6/10 | [craftednba.com](https://craftednba.com) | Present | The site provides an interesting mix of traditional and advanced stats. However only current players seem to be available, even though once accessing the players, you can find there former data too. |
 | 4/10 | [nbarapm.com](https://www.nbarapm.com) | 2004-Present | Provides specific player impact metrics like RAPM, DARKO, and LEBRON. While the data goes back to 2004, it is highly specialized and may not be suitable for a general fantasy game. |

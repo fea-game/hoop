@@ -1,0 +1,16 @@
+{
+  "name": "@hoop/poc-pbpstats-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "openapi-typescript-codegen": "^0.30.0",
+    "vitest": "^4.0.16"
+  }
+}
