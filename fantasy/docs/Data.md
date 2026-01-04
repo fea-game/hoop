@@ -2,18 +2,29 @@
 
 - [APIs](#apis)
   - [Important Limitations of Free/Public APIs](#important-limitations-of-freepublic-apis)
-  - [Popular Free NBA Data APIs](#popular-free-nba-data-apis)
+  - [❌ 1. BALDONTLIE API (Free, well documented) - No Statistics](#-1-baldontlie-api-free-well-documented---no-statistics)
+  - [❌ 2. NBA REST API (Unofficial / public) - Unavailable](#-2-nba-rest-api-unofficial--public---unavailable)
+  - [❌ 3. NBA GraphQL API - Unavailable](#-3-nba-graphql-api---unavailable)
+  - [❌ 4. API-Basketball Free Tier - No Statistics](#-4-api-basketball-free-tier---no-statistics)
+  - [✅ 5. pbpstats.com API (Free, well documented)](#-5-pbpstatscom-api-free-well-documented)
   - [What These APIs Typically Provide](#what-these-apis-typically-provide)
   - [Tips for Building Your Fantasy/Management Game](#tips-for-building-your-fantasymanagement-game)
-  - [Summary Table](#summary-table)
 - [Scraping](#scraping)
   - [robots.txt](#robotstxt)
   - [Terms of service](#terms-of-service)
-  - [Available Content](#available-content)
+  - [Free Content](#free-content)
 
 ## APIs
 
 If you want to build a game that combines fantasy basketball and management aspects using real NBA player data, there are several free APIs available. These APIs provide data on current and former NBA players, though most have some limitations compared to paid offerings. Below is a rundown of good options to get started:
+
+| API | Free | API Key | Data Coverage | Good For |
+| --- | --- | --- | --- | --- |
+| **Balldontlie** | ❌ | Yes | Only Game statistics | Game analysis |
+| **NBA REST API** | ❌ | No | Unavailable | - |
+| **NBA GraphQL** | ❌ | Depends | Unavailable | - |
+| **API-Basketball** | ❌ | Yes | Leagues, Teams and Player names | League structure |
+| **pbpstats.com** | ✅ | No | Extensive | Detailed stats & live data |
 
 ### Important Limitations of Free/Public APIs
 
@@ -29,9 +40,7 @@ Before diving in, be aware of constraints common to all public and free NBA data
 
 For truly comprehensive, production-grade coverage (rich events, advanced metrics, timely feeds), Sportradar is widely regarded as the only sufficiently powerful option among commonly known providers. However, reliable public pricing is not available; information encountered suggests costs starting around $1,000+ per month, which makes it a non-candidate for this project or most indie prototypes.
 
-### Popular Free NBA Data APIs
-
-#### 1. BALDONTLIE API (Free, well documented)
+### ❌ 1. BALDONTLIE API (Free, well documented) - <span style="color:orange">No Statistics</span>
 
 A widely-used free API with NBA player & team data going back decades.
 
@@ -46,10 +55,11 @@ A widely-used free API with NBA player & team data going back decades.
 
 *   You need a free API key.
 *   Some endpoints (like detailed live box scores / advanced stats) **may require paid tiers**. [nba.balldontlie.io+1](https://nba.balldontlie.io/?utm_source=chatgpt.com)
+*   <span style="color:orange">Doesn't provide player statistics, beyond a specific game.</span>
 
 👉 Great starting point for basic player data and historical stats.
 
-#### 2. NBA REST API (Unofficial / public) - <span style="color:orange">Unavailable</span>
+### ❌ 2. NBA REST API (Unofficial / public) - <span style="color:orange">Unavailable</span>
 
 A community-hosted REST API that serves NBA player, team, and game data via JSON.
 
@@ -68,7 +78,7 @@ A community-hosted REST API that serves NBA player, team, and game data via JSON
 
 👉 Good if you want a **no-auth, easy JSON source** quickly.
 
-#### 3. NBA GraphQL API - <span style="color:orange">Unavailable</span>
+### ❌ 3. NBA GraphQL API - <span style="color:orange">Unavailable</span>
 
 A GraphQL-style API that lets you request NBA data via flexible queries.
 
@@ -85,7 +95,7 @@ A GraphQL-style API that lets you request NBA data via flexible queries.
 
 👉 Great if you like **GraphQL flexibility**.
 
-#### 4. API-Basketball Free Tier
+### ❌ 4. API-Basketball Free Tier - <span style="color:orange">No Statistics</span>
 
 A more general sports API provider that includes basketball/NBA support.
 
@@ -94,6 +104,7 @@ A more general sports API provider that includes basketball/NBA support.
 *   NBA data endpoints
 *   Free tier available (with registration)
 *   Designed for building apps and dashboards
+*   <span style="color:orange">Doesn't provide player statistics.</span>
 
 **Notes**
 
@@ -101,20 +112,25 @@ A more general sports API provider that includes basketball/NBA support.
 
 👉 Useful if you want **multi-sport support** and simple endpoints.
 
-#### 5. Community / Public Builder APIs
+### ✅ 5. pbpstats.com API (Free, well documented)
 
-There are APIs listed in free public API directories (like _NBA Stats API_ or wrappers of `nba.com` endpoints) that provide basic stats and player lists.
+[pbpstats.com](https://www.pbpstats.com/) provides a powerful and free API for NBA, WNBA, and G-League data. It is well-documented with a [Swagger UI](https://api.pbpstats.com/docs).
 
 **Features**
 
-*   Often no API key required
-*   Historical and current season support
+*   **General Data**: Get all players, teams, and games for a league.
+*   **Detailed Stats**: Access career stats, game logs, and on/off court data (WOWY).
+*   **Possession & Shot Data**: Granular access to possession and shot data with filtering.
+*   **Live Data**: Provides live game data.
+*   **Visualization Endpoints**: Data for assist networks, four-factor charts, and more.
+*   **Win Probability**: Calculate win probability based on game situations.
 
 **Notes**
 
-*   These can be **unstable or undocumented**, so use with caution for production. [Free APIs+1](https://freeapis.io/nba-stats?utm_source=chatgpt.com)
+*   The API is free and does not require an API key.
+*   It provides a rich set of data suitable for in-depth analysis and simulation.
 
-👉 Useful for **prototyping or side projects**, but validate long-term reliability.
+👉 An excellent and comprehensive free resource for detailed basketball statistics.
 
 ### What These APIs Typically Provide
 
@@ -146,31 +162,15 @@ If your game becomes commercial, check the API’s terms of service — especial
 
 For historical depth, consider supplementing API calls with downloaded datasets (e.g., Kaggle NBA datasets) or open data repos.
 
-### Summary Table
-
-| API | Free | API Key | Data Coverage | Good For |
-| --- | --- | --- | --- | --- |
-| **Balldontlie** | ✅ | Yes | Good historical & current | Player/team basics |
-| **NBA REST API** | ❌ | No | Varied | Quick prototyping |
-| **NBA GraphQL** | ❌ | Depends | Flexible | Custom queries |
-| **API-Basketball** | ✅ | Yes | Moderate | Multi-sport |
-| **Public Wrappers** | ✅ | No | Varies | Simple use cases |
-
-If you want, you can also request example code for fetching NBA player data using these APIs in Python or JavaScript. Specify your preferred language and the specific data you want (e.g., player list, stats, career totals).
-
 ## Scraping
 
 While APIs are the preferred method for data retrieval, scraping websites is another option.
 
-| Rating | Website | Restriction |
-| --- | --- | --- |
-| 10 | [nbarapm.com](https://www.nbarapm.com) | Fully permissive; no `robots.txt` or terms of service were found. |
-| 10 | [pbpstats.com](https://www.pbpstats.com/) | Fully permissive; no `robots.txt` or terms of service were found. |
-| 10 | [craftednba.com](https://craftednba.com) | Fully permissive; `robots.txt` allows all scraping and no terms of service were found. |
-| 10 | [thinkingbasketball.net](https://thinkingbasketball.net) | Fully permissive; `robots.txt` allows all scraping and no terms of service were found. |
-| 9.5 | [cleaningtheglass.com](https://cleaningtheglass.com) | `robots.txt` is fully permissive. Terms of service require attribution for non-commercial use. |
-| 8.5 | [nbastuffer.com](https://www.nbastuffer.com/) | `robots.txt` is permissive. Terms of use prohibit commercial use and require a link back for any reuse or distribution. |
-| 7.5 | [bball-index.com](https://www.bball-index.com/) | `robots.txt` is fully permissive, but the terms of service do not explicitly mention automated access. |
+| Website | Content | Notes | Access | Restriction |
+| --- | --- | --- | --- | --- |
+| [pbpstats.com](https://www.pbpstats.com/) | 9 | Provides a wide range of statistics from play-by-play data. | 10 | Fully permissive; no `robots.txt` or terms of service were found. |
+| [nbastuffer.com](https://www.nbastuffer.com/) | 7 | Offers team and player stats, including power rankings, box score-like statistics, and some advanced metrics. | 8.5 | `robots.txt` is permissive. Terms of use prohibit commercial use and require a link back for any reuse or distribution. |
+| [craftednba.com](https://craftednba.com) | 6 | Provides an interesting mix of traditional and advanced stats, but mostly limited to the current season. | 10 | Fully permissive; `robots.txt` allows all scraping and no terms of service were found. |
 
 ### robots.txt
 
@@ -204,105 +204,18 @@ Always review the terms of service for any website before scraping. The absence 
 | 5/10 | [bball-index.com](https://www.bball-index.com/) | The terms of service do not explicitly mention automated access or scraping. The terms are standard and don't contain any specific restrictions on data usage for non-commercial projects, but they also don't grant any explicit permissions. |
 | 2/10 | [databallr.com](https://databallr.com/terms-of-service) | The terms of service grant a limited license for personal, non-commercial use and explicitly state that you may not modify or copy the materials or use them for commercial purposes. |
 
-### Available Content
+### Free Content
 
-#### nbarapm.com
+After reviewing the content providers, it's clear that only a few sites offer a substantial amount of free, easily accessible data suitable for a fantasy basketball project. Many sites either have their most valuable data behind a paywall or provide very specific, niche metrics that may not be suitable for a general-purpose fantasy game.
 
-*   **Data Types**: Provides advanced player impact metrics. The primary metrics are:
-    *   **RAPM** (Regularized Adjusted Plus-Minus): Includes several variations like time-decayed RAPM (2-year to 5-year). "Pure RAPM" includes playoffs and is adjusted for fatigue.
-    *   **DARKO**
-    *   **LEBRON**
-    *   **eRAPTOR** and **MAMBA** are also mentioned as sourced metrics.
-*   **Coverage**:
-    *   Annual RAPM data is available from the 2005 season up to the current season (2026 shown in examples).
-    *   Career and peak metrics are ranked against all players from 1997-2024.
-*   **Details**:
-    *   Metrics are broken down into offensive and defensive impact.
-    *   Provides rankings for players based on these metrics.
-    *   The data appears to be focused on individual player performance rather than team or game stats.
+The table below summarizes the available data from each site, with a rating from 1 to 10 indicating the amount of free data provided.
 
-#### pbpstats.com
-
-*   **Data Types**: Provides a wide range of statistics derived from play-by-play data. Key categories include:
-    *   **On/Off Stats**: Includes Wowy (With or Without You), Wowy combinations, and on/off stats for players and teams.
-    *   **Possession-Based Stats**: Totals and per-100-possession stats for players, teams, opponents, and lineups.
-    *   **Game Logs**: Player, team, and opponent game logs.
-    *   **Possession Finder**: A tool to query possessions based on various criteria like period, time remaining, and score.
-    *   **Visualizations**: Tools like assist networks, scatter plots, and year-over-year plots.
-*   **Coverage**:
-    *   **NBA**: Data available from the 2000-01 season to the present.
-    *   **WNBA**: Data available from the 2009 season to the present.
-    *   **G-League**: Data available from the 2016-17 season to the present.
-*   **Details**:
-    *   Provides granular data such as points from assisted/unassisted shots, foul types, rebound percentages by zone, and turnover breakdowns (live vs. dead ball).
-    *   Includes an expected eFG shot quality model.
-    *   Offers live stats during games.
-    *   The site has a documented API.
-
-#### craftednba.com
-
-- Player Traits (Best offensive rebounders, elite defenders, rising young stars, and future superstars)
-- NBA Games & Puzzles
-- Membership with custom roster building and award-winning projections
-- Doppelgangers to compare player's seasons to historical data since 1978
-- 2025 Draft Guide
-- Player Stats (traditional, advanced, and plus-minus)
-
-#### thinkingbasketball.net
-
-A website with articles, podcasts, and stat tools.
-
-**Features**
-
-*   Player stats updated daily during the season.
-*   In-house metrics for scoring, playmaking, and overall effectiveness (BPM).
-*   Player summary cards with percentiles.
-*   Team and player comparison tools.
-*   Player trend data since 2016.
-*   Historical data for some metrics going back to 1978 and even further.
-
-**Notes**
-
-*   Some content is behind a Patreon paywall.
-*   Provides unique metrics not found elsewhere.
-
-#### cleaningtheglass.com
-
-**Data available**:
-
-*   Advanced NBA stats with a focus on accuracy and context.
-*   Garbage time and heaves are filtered out.
-*   Possessions are counted directly from play-by-play.
-*   Stats are presented with percentiles for easier interpretation.
-*   Shot locations are broken into meaningful categories.
-*   Positional groupings that fit the modern NBA.
-*   Stats are broken down by half-court vs. transition vs. putbacks.
-*   On/off court impact analysis for players.
-*   Positional estimates for all players.
-
-**Seasons/Years**:
-
-*   The website has articles and analysis dating back to the 2017-2018 NBA season.
-*   It's highly likely that data is available for all seasons from 2017-2018 to the present, but the exact range is not publicly specified. The service is subscription-based, and more detailed information is likely available to subscribers.
-
-#### nbastuffer.com
-
-- **Team Stats**: Includes power rankings, rest days stats, and referee stats.
-- **Player Stats**: Provides box score-like statistics such as points, rebounds, and assists.
-- **Advanced Stats**: Offers metrics for team and player evaluation.
-- **Historical Data**: The website focuses on the 2025-2026 season, with some data from the 2024-2025 season. For more comprehensive historical datasets, there are links to `bigdataball.com`.
-- **Other Resources**: The site also features a blog and an "Analytics 101" section for deeper insights into basketball analytics.
-
-#### bball-index.com
-
-*   **Seasons:** 2013-2026
-*   **Data:**
-    *   Player data (basic, advanced, grades)
-    *   Team data
-    *   Leaderboards
-    *   Play types
-    *   Lineups
-*   **Notes:**
-    *   Mix of free and paid data.
-    *   Excellent source for deep player and team analytics.
-    *   Not an API, would require scraping.
+| Rating | Website | Seasons | Notes |
+| --- | --- | --- | --- |
+| 9/10 | [pbpstats.com](https://www.pbpstats.com/) | 2000-Present | Provides a wide range of statistics from play-by-play data, including On/Off stats, possession-based stats, and game logs for the NBA, WNBA, and G-League, dating back to the 2000-01 season. It also has a documented API. |
+| 7/10 | [nbastuffer.com](https://www.nbastuffer.com/) | 2016-Present | Offers team and player stats, including power rankings, box score-like statistics, and some advanced metrics. However, the focus is primarily on the current and most recent seasons. |
+| 6/10 | [craftednba.com](https://craftednba.com) | Present | The site provides an interesting mix of traditional and advanced stats. However only current players seem to be available, even though once accessing the players, you can find there former data too. |
+| 4/10 | [nbarapm.com](https://www.nbarapm.com) | 2004-Present | Provides specific player impact metrics like RAPM, DARKO, and LEBRON. While the data goes back to 2004, it is highly specialized and may not be suitable for a general fantasy game. |
+| 3/10 | [bball-index.com](https://www.bball-index.com/) | 2010-Present | Only contains Lebron data and some advanced analysis. The data is not suitable to build a simulation on it. |
+| 2/10 | [cleaningtheglass.com](https://cleaningtheglass.com) | 2003-Present | Only provides categorised data for top 5 of that category. It's too fragmented and specific to use it as the foundation of a simulation. |
+| 0/10 | [thinkingbasketball.net](https://thinkingbasketball.net) | Since 2016 | All relevant data seems to be behind a Paetron paywall. |
