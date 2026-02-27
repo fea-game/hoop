@@ -8,6 +8,7 @@ This document contains inspirations that will support the core pillars of this g
 - [City Building Games](#city-building-games)
 - [Pokemon](#pokemon)
 - [Roguelite Games](#roguelite-games)
+- [Deck Building Games](#deck-building-games)
 - [Captain Tsubasa](#captain-tsubasa)
 
 ## Basketball
@@ -20,7 +21,7 @@ I primarily played the NBA 2K video game series. I always enjoyed playing sport 
 
 ## Roleplaying Games
 
-I always have been playing RPG-style video games, like the Elder Scrolls series, Gothic, Cyberpunk 2077 and the Baldurs Gate series. The customization aspect, from the appearance, over attributes, skills, perks and such, finding a combination that would be smart and effective within the game is really interesting to me.
+I always have been playing RPG-style video games, like the Elder Scrolls series, Gothic, Cyberpunk 2077 and the Baldurs Gate series. The customization aspect, from the appearance, over attributes, skills, perks and such, finding a combination that would be smart and effective within the game is really interesting to me. The RPG genre is inherently centred on a single protagonist whose growth and story are the core of the experience, which naturally pushes this game concept towards a single-player focus rather than team management.
 
 ## City Building Games
 
@@ -33,6 +34,12 @@ While I haven't really watched the Pokemon tv shows and movies and wouldn't cons
 ## Roguelite Games
 
 Recently I have also discovered the roguelite video game category, especially [Net.Attack()](https://store.steampowered.com/app/3047370/NetAttack/) I find well made. The idea of smartly combining skills or perks to build your player and try to beat the game through that and trying to discover new ways is something I enjoy.
+
+## Deck Building Games
+
+While sports trading card games exist, the more relevant overlap here is with the collection mechanic from [Pokemon](#pokemon): collected cards form a roster, which can be upgraded, combined for synergies, and optimised over time. A well-known deck building video game is [Slay the Spire](https://store.steampowered.com/app/646570/Slay_the_Spire/), where strategic card combination and synergy discovery drive progression.
+
+This mechanic opens two possible directions: cards could represent skills, perks, and items that augment a single player's progression — consistent with the [RPG influence](#roleplaying-games) — or they could represent players recruited into a team, shifting the focus towards roster building and team synergy management.
 
 ## Captain Tsubasa
 
