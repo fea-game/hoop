@@ -1,4 +1,6 @@
-# Brainstorming: Game World & Core Mechanics
+---
+title: Brainstorming
+---
 
 ## Synthesis from Motivation & Inspiration
 - Focus: Single-player basketball RPG with world exploration, player progression, and story-driven elements.

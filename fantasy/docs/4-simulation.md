@@ -1,4 +1,6 @@
-# Approaches to Simulating matches
+---
+title: Simulating Matches
+---
 
 > _How do I turn players + strategies into realistic outcomes without “playing the game” visually?_
 

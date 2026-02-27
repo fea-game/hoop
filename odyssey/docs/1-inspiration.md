@@ -1,15 +1,8 @@
-# Inspiration
+---
+title: Inspiration
+---
 
 This document contains inspirations that will support the core pillars of this game. It contains ideas and references to existing games. It should provide enough context to understand and feel the motivation for this project.
-
-- [Basketball](#basketball)
-- [Basketball Video Games](#basketball-video-games)
-- [Roleplaying Games](#roleplaying-games)
-- [City Building Games](#city-building-games)
-- [Pokemon](#pokemon)
-- [Roguelite Games](#roguelite-games)
-- [Deck Building Games](#deck-building-games)
-- [Captain Tsubasa](#captain-tsubasa)
 
 ## Basketball
 

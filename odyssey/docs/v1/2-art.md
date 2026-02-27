@@ -1,3 +1,7 @@
+---
+title: Art
+---
+
 ## Match Panel Art Pipeline (No AI at Runtime)
 
 ### Overview

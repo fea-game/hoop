@@ -1,4 +1,6 @@
-# NBA Data APIs for Fantasy Basketball & Management Games
+---
+title: NBA Data
+---
 
 - [APIs](#apis)
   - [Important Limitations of Free/Public APIs](#important-limitations-of-freepublic-apis)

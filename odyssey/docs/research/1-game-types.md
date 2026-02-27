@@ -1,42 +1,26 @@
-# Game Types
+---
+title: Game Types
+---
 
 This document contains a list of influencial game types and their characteristics, relevant for @hoop/odyssey.
 
-- [Basketball Video Games](#basketball-video-games)
-- [Roleplaying Games](#roleplaying-games)
-- [City Building Games](#city-building-games)
-- [Pokemon](#pokemon)
-- [Roguelite Games](#roguelite-games)
-- [Deck Building Games](#deck-building-games)
-- [References](#references)
-
 ## Basketball Video Games
-
-### Influence
 
 Core sport simulation and single-player career progression (NBA 2K's MyPlayer) define the primary gameplay loop, including player customization and stat-driven development.
 
 ## Roleplaying Games
 
-### Influence
-
 Deep character customization through attributes, skills, and perks — finding smart, personal combinations that make your player uniquely effective in the game world. The RPG genre's protagonist-centred nature pushes the concept towards a single-player focus rather than team management.
 
 ## City Building Games
-
-### Influence
 
 The exploration aspect: discovering the world, uncovering special locations and resources that can be used strategically to gain an advantage.
 
 ## Pokemon
 
-### Influence
-
 World exploration with hidden collectibles and the satisfaction of finding, training, and assembling a team that works well together.
 
 ## Roguelite Games
-
-### Influence
 
 Combining skills and perks in creative ways to build a player, with the drive to discover new synergies and strategies each run.
 
@@ -127,8 +111,6 @@ The roguelike genre is relatively straightforward to design at a structural leve
 **Sources:** rogueliker.com — "The Best Roguelike Games" (Feb 2026); "What is a roguelike?" (Aug 2024); "Preparing for Slay the Spire 2" (Feb 2026); "The biggest roguelike and roguelite launches on Steam" (Feb 2026).
 
 ## Deck Building Games
-
-### Influence
 
 Collection and synergy mechanics — cards can represent either skills/items augmenting a single player's progression, or recruited players forming a team roster. This opens two distinct design directions for the game.
 

@@ -1,4 +1,6 @@
-# Legal risks for a NBA fantasy simulation game
+---
+title: Ideation
+---
 
 **User:** Anonymous (internet.belch@gmx.de)  
 **Created:** 12/16/2025 7:35:23  

@@ -1,4 +1,6 @@
-# Motivation
+---
+title: Motivation
+---
 
 The project began as an exploration of combining the [MyPlayer mode from NBA2K](./1-inspiration.md#basketball-video-games) with the collectible and exploration elements of games like [Pokémon](./1-inspiration.md#pokemon). The initial motivation was to create a basketball game that goes beyond traditional sports simulations, focusing on player progression and world discovery - as often found in [RPG-style games](./1-inspiration.md#roleplaying-games).
 

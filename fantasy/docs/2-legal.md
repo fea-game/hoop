@@ -1,4 +1,6 @@
-# Legal Risks for NBA-Based Fantasy Basketball Games
+---
+title: Legal Risks
+---
 
 This document summarizes a detailed conversation about the legal risks and design strategies for creating a fantasy basketball application or simulation that uses real NBA player names, stats, and team data. The discussion is U.S.-focused but generally applies to similar legal systems.
 
