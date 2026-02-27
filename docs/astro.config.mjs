@@ -1,12 +1,16 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import remarkRewriteMdLinks from "./remark-rewrite-md-links.mjs";
 
 const isProd = process.env.NODE_ENV === "production";
 
 // https://astro.build/config
 export default defineConfig({
   base: isProd ? "/hoop" : undefined,
+  markdown: {
+    remarkPlugins: [remarkRewriteMdLinks],
+  },
   integrations: [
     starlight({
       title: "@fea-game/Hoop",
