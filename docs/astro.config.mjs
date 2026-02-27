@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import starlightThemeGalaxy from "starlight-theme-galaxy";
 import remarkRewriteMdLinks from "./remark-rewrite-md-links.mjs";
 
 const isProd = process.env.NODE_ENV === "production";
@@ -13,6 +14,7 @@ export default defineConfig({
   },
   integrations: [
     starlight({
+      plugins: [starlightThemeGalaxy()],
       title: "@fea-game/Hoop",
       social: [
         {
