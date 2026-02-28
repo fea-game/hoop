@@ -2,6 +2,7 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightThemeGalaxy from "starlight-theme-galaxy";
+import mermaid from "astro-mermaid";
 import remarkRewriteMdLinks from "./remark-rewrite-md-links.mjs";
 import { config } from "dotenv";
 import { resolve } from "path";
@@ -23,6 +24,7 @@ export default defineConfig({
     remarkPlugins: [remarkRewriteMdLinks],
   },
   integrations: [
+    mermaid({ autoTheme: true }),
     starlight({
       plugins: [starlightThemeGalaxy()],
       title: "@fea-game/Hoop",

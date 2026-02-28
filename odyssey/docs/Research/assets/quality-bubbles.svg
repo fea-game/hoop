@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1050" width="1100" height="1050">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#0d0d1a"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="1050" fill="url(#bg)" rx="12"/>
+
+  <!-- Everything scaled + centered -->
+  <g transform="translate(550,460) scale(1.8) translate(-574,-557)">
+
+    <!-- Glow layer -->
+    <g filter="url(#glow)" opacity="0.45">
+      <circle cx="550"   cy="550"   r="110" fill="#FF6B6B" opacity="0.92"/>
+      <circle cx="739.1" cy="583.3" r="82"  fill="#FF9F43" opacity="0.92"/>
+      <circle cx="644.4" cy="717.2" r="82"  fill="#FF9F43" opacity="0.92"/>
+      <circle cx="388.4" cy="608.8" r="62"  fill="#FECA57" opacity="0.92"/>
+      <circle cx="390.8" cy="484.9" r="62"  fill="#FECA57" opacity="0.92"/>
+      <circle cx="636"   cy="401"   r="62"  fill="#FECA57" opacity="0.92"/>
+      <circle cx="467.1" cy="679.8" r="44"  fill="#48DBFB" opacity="0.92"/>
+      <circle cx="473"   cy="416.6" r="44"  fill="#48DBFB" opacity="0.92"/>
+      <circle cx="539"   cy="358.4" r="44"  fill="#48DBFB" opacity="0.92"/>
+      <circle cx="725.3" cy="458.1" r="44"  fill="#48DBFB" opacity="0.92"/>
+      <circle cx="522.3" cy="748.4" r="44"  fill="#48DBFB" opacity="0.92"/>
+      <circle cx="404.1" cy="395.8" r="28"  fill="#A29BFE" opacity="0.92"/>
+      <circle cx="397.5" cy="698.4" r="28"  fill="#A29BFE" opacity="0.92"/>
+      <circle cx="671.5" cy="509.7" r="18"  fill="#1A4FA0" opacity="0.92"/>
+      <circle cx="558.9" cy="422.3" r="18"  fill="#1A4FA0" opacity="0.92"/>
+    </g>
+
+    <!-- Solid circles -->
+    <circle cx="550"   cy="550"   r="110" fill="#FF6B6B" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="739.1" cy="583.3" r="82"  fill="#FF9F43" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="644.4" cy="717.2" r="82"  fill="#FF9F43" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="388.4" cy="608.8" r="62"  fill="#FECA57" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="390.8" cy="484.9" r="62"  fill="#FECA57" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="636"   cy="401"   r="62"  fill="#FECA57" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="467.1" cy="679.8" r="44"  fill="#48DBFB" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="473"   cy="416.6" r="44"  fill="#48DBFB" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="539"   cy="358.4" r="44"  fill="#48DBFB" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="725.3" cy="458.1" r="44"  fill="#48DBFB" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="522.3" cy="748.4" r="44"  fill="#48DBFB" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="404.1" cy="395.8" r="28"  fill="#A29BFE" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="397.5" cy="698.4" r="28"  fill="#A29BFE" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="671.5" cy="509.7" r="18"  fill="#1A4FA0" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+    <circle cx="558.9" cy="422.3" r="18"  fill="#1A4FA0" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+
+    <!-- Labels; font-size = rendered_target / 1.8 -->
+
+    <!-- Mastery curve: rendered 28px → 15.6 -->
+    <text x="550" y="550" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="15.6" font-weight="700" fill="#fff">Mastery curve</text>
+
+    <!-- Build / customisation: rendered 21px → 11.7 -->
+    <text x="739.1" y="577" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="11.7" font-weight="600" fill="#fff">Build /</text>
+    <text x="739.1" y="591" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="11.7" font-weight="600" fill="#fff">customisation</text>
+
+    <!-- Social vocabulary: rendered 21px → 11.7 -->
+    <text x="644.4" y="711" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="11.7" font-weight="600" fill="#fff">Social</text>
+    <text x="644.4" y="725" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="11.7" font-weight="600" fill="#fff">vocabulary</text>
+
+    <!-- Skill expression: rendered 16px → 8.9 -->
+    <text x="388.4" y="603" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="8.9" font-weight="600" fill="#fff">Skill</text>
+    <text x="388.4" y="615" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="8.9" font-weight="600" fill="#fff">expression</text>
+
+    <!-- Power fantasy: rendered 16px → 8.9 -->
+    <text x="390.8" y="484.9" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="8.9" font-weight="600" fill="#fff">Power fantasy</text>
+
+    <!-- Progression visibility: rendered 16px → 8.9 -->
+    <text x="636" y="395" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="8.9" font-weight="600" fill="#fff">Progression</text>
+    <text x="636" y="408" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="8.9" font-weight="600" fill="#fff">visibility</text>
+
+    <!-- Replayability: rendered 12px → 6.7 -->
+    <text x="467.1" y="679.8" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="6.7" font-weight="600" fill="#fff">Replayability</text>
+
+    <!-- Strategic depth: rendered 12px → 6.7 -->
+    <text x="473" y="411" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="6.7" font-weight="600" fill="#fff">Strategic</text>
+    <text x="473" y="422" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="6.7" font-weight="600" fill="#fff">depth</text>
+
+    <!-- Emergent complexity: rendered 12px → 6.7 -->
+    <text x="539" y="353" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="6.7" font-weight="600" fill="#fff">Emergent</text>
+    <text x="539" y="364" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="6.7" font-weight="600" fill="#fff">complexity</text>
+
+    <!-- Exploration & discovery: rendered 12px → 6.7 -->
+    <text x="725.3" y="453" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="6.7" font-weight="600" fill="#fff">Exploration</text>
+    <text x="725.3" y="464" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="6.7" font-weight="600" fill="#fff">&amp; discovery</text>
+
+    <!-- Character / team identity: rendered 12px → 6.7 -->
+    <text x="522.3" y="742" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="6.7" font-weight="600" fill="#fff">Character /</text>
+    <text x="522.3" y="753" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="6.7" font-weight="600" fill="#fff">team identity</text>
+
+    <!-- Risk / reward tension: rendered 10px → 5.6 -->
+    <text x="404.1" y="390" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="5.6" font-weight="600" fill="#fff">Risk / reward</text>
+    <text x="404.1" y="399" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="5.6" font-weight="600" fill="#fff">tension</text>
+
+    <!-- Session flexibility: rendered 10px → 5.6 -->
+    <text x="397.5" y="694" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="5.6" font-weight="600" fill="#fff">Session</text>
+    <text x="397.5" y="703" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="5.6" font-weight="600" fill="#fff">flexibility</text>
+
+    <!-- Collection drive: rendered 9px → 5.0 -->
+    <text x="671.5" y="507" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="5.0" font-weight="600" fill="#fff">Collection</text>
+    <text x="671.5" y="514" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="5.0" font-weight="600" fill="#fff">drive</text>
+
+    <!-- Narrative weight: rendered 9px → 5.0 -->
+    <text x="558.9" y="419" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="5.0" font-weight="600" fill="#fff">Narrative</text>
+    <text x="558.9" y="426" text-anchor="middle" dominant-baseline="middle"
+          font-family="system-ui,sans-serif" font-size="5.0" font-weight="600" fill="#fff">weight</text>
+
+  </g>
+
+  <!-- Legend (outside transform) -->
+  <circle cx="38" cy="840" r="14" fill="#FF6B6B" opacity="0.92"/>
+  <text x="60" y="845" font-family="system-ui,sans-serif" font-size="17" fill="rgba(255,255,255,0.7)">Universal</text>
+  <circle cx="38" cy="872" r="14" fill="#FF9F43" opacity="0.92"/>
+  <text x="60" y="877" font-family="system-ui,sans-serif" font-size="17" fill="rgba(255,255,255,0.7)">Near-universal</text>
+  <circle cx="38" cy="904" r="14" fill="#FECA57" opacity="0.92"/>
+  <text x="60" y="909" font-family="system-ui,sans-serif" font-size="17" fill="rgba(255,255,255,0.7)">Majority</text>
+  <circle cx="38" cy="936" r="14" fill="#48DBFB" opacity="0.92"/>
+  <text x="60" y="941" font-family="system-ui,sans-serif" font-size="17" fill="rgba(255,255,255,0.7)">Common</text>
+  <circle cx="38" cy="968" r="14" fill="#A29BFE" opacity="0.92"/>
+  <text x="60" y="973" font-family="system-ui,sans-serif" font-size="17" fill="rgba(255,255,255,0.7)">Minority</text>
+  <circle cx="38" cy="1000" r="14" fill="#1A4FA0" opacity="0.92"/>
+  <text x="60" y="1005" font-family="system-ui,sans-serif" font-size="17" fill="rgba(255,255,255,0.7)">Niche</text>
+</svg>

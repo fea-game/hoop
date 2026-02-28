@@ -1,0 +1,232 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 686" width="760" height="686">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#0d0d1a"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="760" height="686" fill="url(#bg)" rx="12"/>
+
+  <!-- Grid: 6 genres, cell size 90px, origin at (160, 110) -->
+  <!-- Genres order (row/col): Roguelite, Deck Building, Basketball, RPG, Pokémon, City Building -->
+  <!-- Col headers (top) -->
+  <text x="205" y="92" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="middle">Roguelite</text>
+  <text x="295" y="92" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="middle">Deck</text>
+  <text x="295" y="107" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="middle">Building</text>
+  <text x="385" y="92" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="middle">Basketball</text>
+  <text x="475" y="92" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="middle">RPG</text>
+  <text x="565" y="92" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="middle">Pokémon</text>
+  <text x="655" y="92" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="middle">City</text>
+  <text x="655" y="107" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="middle">Building</text>
+
+  <!-- Row headers (left) -->
+  <text x="150" y="165" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="end">Roguelite</text>
+  <text x="150" y="255" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="end">Deck</text>
+  <text x="150" y="270" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="end">Building</text>
+  <text x="150" y="352" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="end">Basketball</text>
+  <text x="150" y="440" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="end">RPG</text>
+  <text x="150" y="530" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="end">Pokémon</text>
+  <text x="150" y="613" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="end">City</text>
+  <text x="150" y="628" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="rgba(255,255,255,0.75)" text-anchor="end">Building</text>
+
+  <!-- Diagonal (self) — dim dots -->
+  <circle cx="205" cy="160" r="6" fill="rgba(255,255,255,0.07)"/>
+  <circle cx="295" cy="250" r="6" fill="rgba(255,255,255,0.07)"/>
+  <circle cx="385" cy="340" r="6" fill="rgba(255,255,255,0.07)"/>
+  <circle cx="475" cy="430" r="6" fill="rgba(255,255,255,0.07)"/>
+  <circle cx="565" cy="520" r="6" fill="rgba(255,255,255,0.07)"/>
+  <circle cx="655" cy="610" r="6" fill="rgba(255,255,255,0.07)"/>
+
+  <!-- Color scale: 10→#FF6B6B, 6→#FF9F43, 5→#FECA57, 4→#48DBFB, no data→faint -->
+  <!-- Radius scale: 10→38, 6→28, 5→24, 4→20 -->
+
+  <!-- ROW 0: Roguelite (y=160) -->
+  <!-- Roguelite↔Deck Building: 10 -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="295" cy="160" r="38" fill="#FF6B6B"/>
+  </g>
+  <circle cx="295" cy="160" r="38" fill="#FF6B6B" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="295" y="156" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">10</text>
+
+  <!-- Roguelite↔Basketball: 6 -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="385" cy="160" r="28" fill="#FF9F43"/>
+  </g>
+  <circle cx="385" cy="160" r="28" fill="#FF9F43" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="385" y="160" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">6</text>
+
+  <!-- Roguelite↔RPG: 5 -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="475" cy="160" r="24" fill="#FECA57"/>
+  </g>
+  <circle cx="475" cy="160" r="24" fill="#FECA57" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="475" y="160" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">5</text>
+
+  <!-- Roguelite↔Pokémon: 4 -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="565" cy="160" r="20" fill="#48DBFB"/>
+  </g>
+  <circle cx="565" cy="160" r="20" fill="#48DBFB" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="565" y="160" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">4</text>
+
+  <!-- Roguelite↔City Building: 5 -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="655" cy="160" r="24" fill="#FECA57"/>
+  </g>
+  <circle cx="655" cy="160" r="24" fill="#FECA57" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="655" y="160" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">5</text>
+
+  <!-- ROW 1: Deck Building (y=250) -->
+  <!-- Deck↔Roguelite: 10 (mirror) -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="205" cy="250" r="38" fill="#FF6B6B"/>
+  </g>
+  <circle cx="205" cy="250" r="38" fill="#FF6B6B" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="205" y="250" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">10</text>
+
+  <!-- Deck↔Basketball: 5 -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="385" cy="250" r="24" fill="#FECA57"/>
+  </g>
+  <circle cx="385" cy="250" r="24" fill="#FECA57" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="385" y="250" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">5</text>
+
+  <!-- Deck↔RPG: 4 -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="475" cy="250" r="20" fill="#48DBFB"/>
+  </g>
+  <circle cx="475" cy="250" r="20" fill="#48DBFB" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="475" y="250" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">4</text>
+
+  <!-- Deck↔Pokémon: no data -->
+  <circle cx="565" cy="250" r="6" fill="rgba(255,255,255,0.07)"/>
+
+  <!-- Deck↔City Building: 5 -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="655" cy="250" r="24" fill="#FECA57"/>
+  </g>
+  <circle cx="655" cy="250" r="24" fill="#FECA57" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="655" y="250" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">5</text>
+
+  <!-- ROW 2: Basketball (y=340) -->
+  <!-- Basketball↔Roguelite: 6 (mirror) -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="205" cy="340" r="28" fill="#FF9F43"/>
+  </g>
+  <circle cx="205" cy="340" r="28" fill="#FF9F43" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="205" y="340" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">6</text>
+
+  <!-- Basketball↔Deck: 5 (mirror) -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="295" cy="340" r="24" fill="#FECA57"/>
+  </g>
+  <circle cx="295" cy="340" r="24" fill="#FECA57" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="295" y="340" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">5</text>
+
+  <!-- Basketball↔RPG: 6 -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="475" cy="340" r="28" fill="#FF9F43"/>
+  </g>
+  <circle cx="475" cy="340" r="28" fill="#FF9F43" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="475" y="340" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">6</text>
+
+  <!-- Basketball↔Pokémon: 5 -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="565" cy="340" r="24" fill="#FECA57"/>
+  </g>
+  <circle cx="565" cy="340" r="24" fill="#FECA57" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="565" y="340" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">5</text>
+
+  <!-- Basketball↔City Building: no data -->
+  <circle cx="655" cy="340" r="6" fill="rgba(255,255,255,0.07)"/>
+
+  <!-- ROW 3: RPG (y=430) -->
+  <!-- RPG↔Roguelite: 5 (mirror) -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="205" cy="430" r="24" fill="#FECA57"/>
+  </g>
+  <circle cx="205" cy="430" r="24" fill="#FECA57" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="205" y="430" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">5</text>
+
+  <!-- RPG↔Deck: 4 (mirror) -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="295" cy="430" r="20" fill="#48DBFB"/>
+  </g>
+  <circle cx="295" cy="430" r="20" fill="#48DBFB" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="295" y="430" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">4</text>
+
+  <!-- RPG↔Basketball: 6 (mirror) -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="385" cy="430" r="28" fill="#FF9F43"/>
+  </g>
+  <circle cx="385" cy="430" r="28" fill="#FF9F43" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="385" y="430" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">6</text>
+
+  <!-- RPG↔Pokémon: 6 -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="565" cy="430" r="28" fill="#FF9F43"/>
+  </g>
+  <circle cx="565" cy="430" r="28" fill="#FF9F43" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="565" y="430" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">6</text>
+
+  <!-- RPG↔City Building: no data -->
+  <circle cx="655" cy="430" r="6" fill="rgba(255,255,255,0.07)"/>
+
+  <!-- ROW 4: Pokémon (y=520) -->
+  <!-- Pokémon↔Roguelite: 4 (mirror) -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="205" cy="520" r="20" fill="#48DBFB"/>
+  </g>
+  <circle cx="205" cy="520" r="20" fill="#48DBFB" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="205" y="520" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">4</text>
+
+  <!-- Pokémon↔Deck: no data (mirror) -->
+  <circle cx="295" cy="520" r="6" fill="rgba(255,255,255,0.07)"/>
+
+  <!-- Pokémon↔Basketball: 5 (mirror) -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="385" cy="520" r="24" fill="#FECA57"/>
+  </g>
+  <circle cx="385" cy="520" r="24" fill="#FECA57" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="385" y="520" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">5</text>
+
+  <!-- Pokémon↔RPG: 6 (mirror) -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="475" cy="520" r="28" fill="#FF9F43"/>
+  </g>
+  <circle cx="475" cy="520" r="28" fill="#FF9F43" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="475" y="520" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">6</text>
+
+  <!-- Pokémon↔City Building: no data -->
+  <circle cx="655" cy="520" r="6" fill="rgba(255,255,255,0.07)"/>
+
+  <!-- ROW 5: City Building (y=610) -->
+  <!-- City↔Roguelite: 5 (mirror) -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="205" cy="610" r="24" fill="#FECA57"/>
+  </g>
+  <circle cx="205" cy="610" r="24" fill="#FECA57" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="205" y="610" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">5</text>
+
+  <!-- City↔Deck: 5 (mirror) -->
+  <g filter="url(#glow)" opacity="0.4">
+    <circle cx="295" cy="610" r="24" fill="#FECA57"/>
+  </g>
+  <circle cx="295" cy="610" r="24" fill="#FECA57" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" opacity="0.92"/>
+  <text x="295" y="610" font-family="system-ui,sans-serif" font-size="13" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">5</text>
+
+  <!-- City↔Basketball: no data (mirror) -->
+  <circle cx="385" cy="610" r="6" fill="rgba(255,255,255,0.07)"/>
+
+  <!-- City↔RPG: no data (mirror) -->
+  <circle cx="475" cy="610" r="6" fill="rgba(255,255,255,0.07)"/>
+
+  <!-- City↔Pokémon: no data (mirror) -->
+  <circle cx="565" cy="610" r="6" fill="rgba(255,255,255,0.07)"/>
+
+</svg>
