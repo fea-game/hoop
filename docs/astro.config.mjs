@@ -5,7 +5,10 @@ import starlightThemeGalaxy from "starlight-theme-galaxy";
 import mermaid from "astro-mermaid";
 import remarkRewriteMdLinks from "./remark-rewrite-md-links.mjs";
 import { config } from "dotenv";
-import { resolve } from "path";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 config({ path: resolve(process.cwd(), "../.env") });
 
@@ -19,6 +22,13 @@ export default defineConfig({
   server: {
     port: docsPort,
     allowedHosts: tailscaleHostname ? [tailscaleHostname] : [],
+  },
+  vite: {
+    resolve: {
+      alias: {
+        "@charts": resolve(__dirname, "src/charts"),
+      },
+    },
   },
   markdown: {
     remarkPlugins: [remarkRewriteMdLinks],
