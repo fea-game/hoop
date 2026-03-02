@@ -2,6 +2,31 @@
 
 Rules and recipes for building chart components in `docs/src/charts/`. Follow these exactly; all patterns have been validated against the live site.
 
+## Choosing a chart type
+
+Before creating a new component, consult `docs/src/charts/chart-decision-tree.png` (From Data to Viz — Yan Holtz & Conor Healy). It maps data shape → recommended chart type in three steps:
+
+1. Identify the **data family**: Categoric · Categoric+Numeric · Numeric · Relational · Map · Time Series.
+2. Follow the branch for your specific shape (e.g. "one numeric value per group").
+3. Pick the chart that matches the **intent** (Distribution · Correlation · Ranking · Part-of-a-whole · Evolution · Maps · Flow).
+
+Quick lookup for the scenarios that arise most often in this project:
+
+| Scenario | Recommended type | Existing component |
+|---|---|---|
+| Numeric value for every (row, col) cell pair | Heatmap | `Heatmap.astro` |
+| Symmetric pairwise scores between N items | Matrix / Bubble matrix | `PairMatrix.astro` |
+| Multiple quantitative axes for M series | Radar / Spider | `SpiderChart.astro` |
+| Similarity distances between N items as a 2-D plot | MDS Bubble plot | — |
+| Many categories × many series, score per (category, series) — tile layout | Grid of mini spider petals | `GenreGrid.astro` |
+| Many categories × many series, score per (category, series) — territory layout | Voronoi territory chart | `GenreVoronoi.astro` |
+| One series across N quality axes — filled area, placed inside an HTML grid | Single-genre spider (filled polygon) | `GenreSpider.astro` |
+| Many categories × many qualities — distribution/score per (row, quality) as radial violin | Radial violin | `RadialViolin.astro` |
+| Proportions of a whole (single series) | Donut / Pie / Treemap | — |
+| One numeric + one category, ranked | Lollipop / Bar | — |
+| Two continuous variables | Scatter / Bubble | — |
+| One continuous variable over time | Line / Area | — |
+
 ## Hard constraints
 
 - **Zero client JS.** All logic runs in the Astro frontmatter (Node.js at build time). No `<script>` tags, no `client:*` directives, no browser D3.
@@ -141,6 +166,73 @@ Always pair both selectors — Starlight uses either depending on context:
   .chart-svg { display: block; width: 100%; height: auto; }
 </style>
 ```
+
+## HTML grid + SVG chart pattern
+
+When a set of small charts belongs together (e.g. one spider per genre), the grid and the legend **live in the MDX document**, not inside the chart component. This keeps the component single-purpose and reusable.
+
+Pattern:
+```mdx
+<div class="my-grid">
+  {items.map((item, i) => (
+    <div class="my-card">
+      <MyChart ... />
+    </div>
+  ))}
+</div>
+
+<div class="my-legend"> ... </div>
+
+<style>{`
+  .my-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+  .my-card {
+    border: 1.5px solid oklch(65% 0 0 / 0.22);
+    border-radius: 8px;
+    padding: 6px;
+  }
+  /* theming, legend, etc. */
+`}</style>
+```
+
+The chart component itself renders only a bare `<svg>` (no `<figure>` wrapper, no legend). The MDX owns layout. CSS custom properties (`--swatch-dark`, `--swatch-light`) are used for legend swatches via `style=` on individual HTML elements.
+
+## RadialViolin — design patterns
+
+`RadialViolin.astro` renders one continuous closed SVG path per category row, radiating as a ray from the centre.
+
+### Key design decisions (validated in v2):
+
+- **One path per ray, not one path per bump.** `violinPath(row, θ)` samples the full radial extent (`R_INNER - BUMP_H2` to `R_OUTER + BUMP_H2`), traces the right side outward then left side inward, closes with `Z`. Produces a single silhouette, not disconnected blobs.
+- **Width profile via cosine lobes.** `widthAt(row, r)` sums cosine-shaped lobes centred at each `ringR(j)` with half-height `BUMP_H2 = RING_PITCH * 0.48`. The 4% gap between adjacent bumps creates natural waist pinches.
+- **Uniform bump height, variable width.** All bumps have the same radial extent (`BUMP_H2`). Only the perpendicular half-width `bumpW2(v)` varies with score, keeping ring radii comparable across rays.
+- **12 steps per bump.** `STEPS_PER_BUMP = 12` → `N_RINGS * 12` total segments per side → ~361 `L` commands per path. Dense enough to look smooth without Bézier curves.
+- **Ring label placement.** Labels sit at angle `−π/2 + π/N_RAYS` (halfway between ray 0 and ray 1) to avoid colliding with violin shapes.
+- **Props share the `Row` shape with `Heatmap`.** `rows: { label: string; values: [string, number][] }[]` and `colors: { light: string; dark: string }[]` can be passed directly from the same MDX variables.
+
+### Layout constants (600×600 viewBox):
+
+| Constant | Value | Role |
+|---|---|---|
+| `SIZE` | 600 | ViewBox width and height |
+| `R_INNER` | 55 | Radius of innermost ring centre |
+| `R_OUTER` | 220 | Radius of outermost ring centre |
+| `R_LABEL` | 240 | Ray label placement radius |
+| `BUMP_H2` | `RING_PITCH * 0.48` | Cosine lobe half-height along ray |
+| `BUMP_W2_MAX` | `min(R_INNER * sin(π/N_RAYS) * 0.78, 30)` | Max perp half-width (prevents overlap at inner ring) |
+| `BUMP_W2_MIN` | 2 | Min perp half-width (keeps value=1 visible) |
+
+## Voronoi half-plane clipping — sign convention
+
+- `clipPolyByHalfPlane` sign formula: `sign(px,py) = (px−ax)*(−dy) + (py−ay)*dx`, where `(ax,ay)→(bx,by)` is the directed edge and `(dx,dy) = (bx−ax, by−ay)`. Points with `sign ≥ 0` are **kept**.
+- Clip to `x ≥ xMin`: direct the edge **upward** at xMin → `(xMin, canvasH, xMin, 0)`.
+- Clip to `x ≤ xMax`: direct the edge **downward** → `(xMax, 0, xMax, canvasH)`.
+- Clip to `y ≥ yMin`: direct the edge **rightward** → `(0, yMin, canvasH, yMin)`.
+- **Anti-pattern**: using `y=0` and `y=1` (or any near-identical y values) for the clip edge makes `dy ≈ 0` and the sign formula degenerate — all polygons collapse. Always use the full canvas height for the second coordinate.
+- `computeVoronoiCell` bisector: the "keep this side" check must use the **same** sign formula as `clipPolyByHalfPlane`. Using a different cross-product form produced invisible fills; switching to the matching formula fixed it.
 
 ## Anti-patterns — do not retry
 

@@ -19,9 +19,49 @@ D3 is used for its utility functions in Node.js — `d3.scaleLinear`, `d3.scaleS
 ```
 docs/src/charts/
 ├── PairMatrix.astro    Symmetric N×N bubble matrix (pair-overlap scores)
+├── SpiderChart.astro   Radar / spider chart — N axes, M overlaid series
+├── GenreMds.astro      Multidimensional scaling bubble plot with weighted edges
+├── Heatmap.astro       Two-way heatmap — numeric value per (row, col) cell
+├── GenreGrid.astro     Grid of mini spider petals — many categories × many series
+├── GenreVoronoi.astro  Voronoi territory chart — many categories × many series
+├── GenreSpider.astro   Single-genre filled spider polygon (for HTML grid layouts)
+├── RadialViolin.astro  Radial violin — one continuous violin shape per category ray
 ├── README.md           This file
 └── AGENTS.md           Agent-targeted instructions (machine-readable conventions)
 ```
+
+## Choosing a chart type
+
+Before building a new component, use the decision tree in `chart-decision-tree.png` (From Data to Viz, Yan Holtz & Conor Healy) to identify the right chart type for your data.
+
+![From Data to Viz decision tree — classifies chart types by data shape across six families](./chart-decision-tree.png)
+
+The tree works in three steps:
+
+1. **Identify your data family** — pick the column that matches what you have:
+   - **Categoric** — one or more category variables, no numeric axis (bar, lollipop, treemap, …)
+   - **Categoric + Numeric** — categories plus a measured quantity (heatmap, violin, boxplot, …)
+   - **Numeric** — two or more continuous variables (scatter, bubble, histogram, density, …)
+   - **Relational** — nodes and edges (network, chord, sankey, …)
+   - **Map** — geographic data (choropleth, bubble map, …)
+   - **Time Series** — a numeric variable measured over time (line, area, …)
+
+2. **Follow the branch** for your specific situation (e.g. "one numeric value per group" vs. "several numeric variables").
+
+3. **Choose the chart** that best matches what you want to show — the legend in the image colour-codes intent: Distribution, Correlation, Ranking, Part-of-a-whole, Evolution, Maps, Flow.
+
+### Existing components and their place in the tree
+
+| Component | Data family | Intent |
+|---|---|---|
+| `PairMatrix.astro` | Relational / Numeric | Correlation matrix (symmetric pair scores) |
+| `SpiderChart.astro` | Categoric + Numeric | Part-of-a-whole / multivariate comparison |
+| `GenreMds.astro` | Numeric | Correlation (MDS placement) + Relational (edges) |
+| `Heatmap.astro` | Categoric + Numeric | Distribution / Correlation across a two-way table |
+| `GenreGrid.astro` | Categoric + Numeric | Multivariate tile — one spider petal per category |
+| `GenreVoronoi.astro` | Categoric + Numeric | Territory layout — area encodes summed score |
+| `GenreSpider.astro` | Categoric + Numeric | Single-series radar polygon (used inside HTML grid) |
+| `RadialViolin.astro` | Categoric + Numeric | Distribution along each ray — violin width = score |
 
 ## How to add a new chart
 

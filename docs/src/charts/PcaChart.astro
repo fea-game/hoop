@@ -1,0 +1,430 @@
+---
+// PcaChart.astro — PCA (Principal Component Analysis) genre similarity chart.
+//
+// Projects genre score profiles into 2D using the two principal components
+// that explain the most variance across all qualities. Unlike GravityChart,
+// pole positions are not fixed — axes are discovered from the data itself.
+//
+// Algorithm (all server-side, zero dependencies):
+//   1. Mean-centre each quality's scores across all genres
+//   2. Build the 15×15 covariance matrix of centred scores
+//   3. Extract top 2 eigenvectors via power iteration (~100 iterations each)
+//   4. Project each genre onto PC1 and PC2
+//   5. Annotate each axis end with the top-loading qualities for that PC
+//
+// Props match Heatmap.astro / GravityChart.astro exactly.
+// Zero client JS; all rendering is server-side.
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface Row {
+  label: string;
+  values: [string, number][];
+}
+
+interface ColColor {
+  light: string;
+  dark: string;
+}
+
+interface Props {
+  rows: Row[];
+  colors?: ColColor[];
+}
+
+const {
+  rows,
+  colors = [{ light: "#c74a1a", dark: "#f07040" }],
+} = Astro.props;
+
+// ── Derive quality labels from first row ──────────────────────────────────────
+
+const qualities: string[] = rows[0]?.values.map(([label]) => label) ?? [];
+const N = qualities.length; // number of qualities (dimensions)
+const M = rows.length;      // number of genres
+
+// ── Build mean-centred score matrix (M × N) ───────────────────────────────────
+// Each entry: centredScore[genre][quality] = score − mean(quality across genres)
+
+const rawMatrix: number[][] = rows.map(row => {
+  const scoreMap = new Map(row.values.map(([l, v]) => [l, v]));
+  return qualities.map(q => scoreMap.get(q) ?? 0);
+});
+
+const qualityMeans: number[] = qualities.map((_, j) =>
+  rawMatrix.reduce((s, row) => s + row[j], 0) / M
+);
+
+const centred: number[][] = rawMatrix.map(row =>
+  row.map((v, j) => v - qualityMeans[j])
+);
+
+// ── Covariance matrix (N × N) ─────────────────────────────────────────────────
+// cov[i][j] = Σ_genres centred[genre][i] * centred[genre][j] / (M - 1)
+
+const cov: number[][] = Array.from({ length: N }, (_, i) =>
+  Array.from({ length: N }, (_, j) =>
+    centred.reduce((s, row) => s + row[i] * row[j], 0) / (M - 1)
+  )
+);
+
+// ── Power iteration — extract top 2 eigenvectors ──────────────────────────────
+// Deflates after extracting PC1 so PC2 is orthogonal to it.
+
+function vecDot(a: number[], b: number[]): number {
+  return a.reduce((s, v, i) => s + v * b[i], 0);
+}
+
+function vecNorm(v: number[]): number {
+  return Math.sqrt(vecDot(v, v));
+}
+
+function matVecMul(A: number[][], v: number[]): number[] {
+  return A.map(row => vecDot(row, v));
+}
+
+function powerIteration(A: number[][], iters = 200): { vec: number[]; val: number } {
+  // Start from a non-zero vector; seeded to avoid degenerate initialisation
+  let v = A[0].map((_, i) => i === 0 ? 1 : i === 1 ? 0.6 : 0.3);
+  const n = vecNorm(v);
+  v = v.map(x => x / n);
+  let eigenval = 0;
+  for (let k = 0; k < iters; k++) {
+    const Av = matVecMul(A, v);
+    eigenval = vecDot(v, Av);
+    const norm = vecNorm(Av);
+    v = norm > 0 ? Av.map(x => x / norm) : v;
+  }
+  return { vec: v, val: eigenval };
+}
+
+// PC1
+const { vec: pc1, val: val1 } = powerIteration(cov);
+
+// Deflate: A' = A − λ1 * v1 * v1ᵀ
+const deflated: number[][] = cov.map((row, i) =>
+  row.map((v, j) => v - val1 * pc1[i] * pc1[j])
+);
+
+// PC2
+const { vec: pc2, val: val2 } = powerIteration(deflated);
+
+// Total variance explained
+const totalVar = cov.reduce((s, row, i) => s + row[i], 0); // trace
+const pct1 = totalVar > 0 ? Math.round((val1 / totalVar) * 100) : 0;
+const pct2 = totalVar > 0 ? Math.round((val2 / totalVar) * 100) : 0;
+
+// ── Project genres onto PC1 and PC2 ──────────────────────────────────────────
+
+const projections = rows.map((row, i) => {
+  const c = centred[i];
+  return {
+    label: row.label,
+    pc1:   vecDot(c, pc1),
+    pc2:   vecDot(c, pc2),
+    wSum:  rawMatrix[i].reduce((s, v) => s + v, 0),
+    colorLight: colors[i % colors.length].light,
+    colorDark:  colors[i % colors.length].dark,
+  };
+});
+
+// ── Scale projections to fill the plot area ───────────────────────────────────
+
+const pc1vals = projections.map(p => p.pc1);
+const pc2vals = projections.map(p => p.pc2);
+const maxAbs1 = Math.max(...pc1vals.map(Math.abs), 0.001);
+const maxAbs2 = Math.max(...pc2vals.map(Math.abs), 0.001);
+
+// ── Axis annotations from top-loading qualities ───────────────────────────────
+// Find the 2 qualities with the highest +/- loadings on each PC.
+
+function topLoadings(vec: number[], k = 2): { pos: string[]; neg: string[] } {
+  const indexed = vec.map((v, i) => ({ v, label: qualities[i] }));
+  indexed.sort((a, b) => b.v - a.v);
+  return {
+    pos: indexed.slice(0, k).map(x => x.label),
+    neg: indexed.slice(-k).reverse().map(x => x.label),
+  };
+}
+
+const loads1 = topLoadings(pc1, 2);
+const loads2 = topLoadings(pc2, 2);
+
+// Short label: first word only for compactness, joined with " / "
+function shortLabel(labels: string[]): string {
+  return labels.map(l => l.split(' ')[0]).join(' / ');
+}
+
+const ax1PosLabel = shortLabel(loads1.pos);  // right end of PC1 axis
+const ax1NegLabel = shortLabel(loads1.neg);  // left end
+// toSvgY negates pc2 so positive pc2 → top of chart → label with pos loadings
+const ax2PosLabel = shortLabel(loads2.pos);  // top end (positive pc2 = top in SVG)
+const ax2NegLabel = shortLabel(loads2.neg);  // bottom end (negative pc2 = bottom in SVG)
+
+// ── Layout ────────────────────────────────────────────────────────────────────
+
+const SIZE      = 724;
+const PAD_X     = 90;   // horizontal padding — room for axis end labels
+const PAD_TOP   = 48;   // top padding — axis label + variance % text
+const PAD_BOT   = 48;   // bottom padding
+const PLOT_W    = SIZE - PAD_X * 2;
+const PLOT_H    = 400;
+const CX        = PAD_X + PLOT_W / 2;
+const CY        = PAD_TOP + PLOT_H / 2;
+
+const R_DOT     = 7;
+const R_DOT_MAX = R_DOT * 6;
+
+const wSums  = projections.map(p => p.wSum);
+const minSum = Math.min(...wSums);
+const maxSum = Math.max(...wSums);
+
+function dotRadius(wSum: number): number {
+  if (maxSum === minSum) return R_DOT;
+  return R_DOT + (R_DOT_MAX - R_DOT) * (wSum - minSum) / (maxSum - minSum);
+}
+
+// Map PC values → SVG coordinates; fill 80% of plot half-width/height
+const FILL = 0.80;
+function toSvgX(pc1val: number): number {
+  return CX + (pc1val / maxAbs1) * (PLOT_W / 2) * FILL;
+}
+function toSvgY(pc2val: number): number {
+  // pc2 positive = downward in SVG; negate so positive is upward visually
+  return CY - (pc2val / maxAbs2) * (PLOT_H / 2) * FILL;
+}
+
+// Clamp bubble so its edge stays within the plot rectangle
+function clampToPlot(x: number, y: number, r: number): { x: number; y: number } {
+  const margin = r + 2;
+  return {
+    x: Math.max(PAD_X + margin, Math.min(PAD_X + PLOT_W - margin, x)),
+    y: Math.max(PAD_TOP + margin, Math.min(PAD_TOP + PLOT_H - margin, y)),
+  };
+}
+
+const genrePoints = projections.map(p => {
+  const r = dotRadius(p.wSum);
+  const { x, y } = clampToPlot(toSvgX(p.pc1), toSvgY(p.pc2), r);
+  return { ...p, x, y, r };
+});
+
+// ── Legend layout ─────────────────────────────────────────────────────────────
+
+const N_ROWS      = rows.length;
+const LEGEND_COLS = Math.min(N_ROWS, 4);
+const LEGEND_COL_W = Math.floor(SIZE / LEGEND_COLS);
+const LEGEND_ROW_H = 20;
+const LEGEND_ROWS  = Math.ceil(N_ROWS / LEGEND_COLS);
+const LEGEND_PAD   = 8;
+const LEGEND_LEFT  = 16;
+const LEGEND_H     = LEGEND_PAD + LEGEND_ROWS * LEGEND_ROW_H + R_DOT;
+
+// ── ViewBox ───────────────────────────────────────────────────────────────────
+
+const VW = SIZE;
+const VH = PAD_TOP + PLOT_H + PAD_BOT + LEGEND_H;
+
+// ── Axis label positions ──────────────────────────────────────────────────────
+
+const AX_LEFT  = PAD_X;
+const AX_RIGHT = PAD_X + PLOT_W;
+const AX_TOP   = PAD_TOP;
+const AX_BOT   = PAD_TOP + PLOT_H;
+---
+
+<figure class="pca-figure">
+  <svg viewBox={`0 0 ${VW} ${VH}`} role="img" class="pca-svg">
+
+    <!-- ── Crosshair axes ─────────────────────────────────────────── -->
+    <line x1={AX_LEFT} y1={CY} x2={AX_RIGHT} y2={CY} class="pca-axis" />
+    <line x1={CX} y1={AX_TOP} x2={CX} y2={AX_BOT} class="pca-axis" />
+
+    <!-- ── Axis end labels (loading annotations) ─────────────────── -->
+
+    <!-- PC1 left end — two lines centred on the axis -->
+    {(() => {
+      const parts = ax1NegLabel.split(' / ');
+      const line1 = parts[0];
+      const line2 = parts[1] ?? '';
+      const y0 = line2 ? CY - 7 : CY - 1;
+      return (
+        <text
+          x={AX_LEFT - 6} y={y0}
+          text-anchor="end"
+          font-size="11" font-weight="600" font-family="system-ui, sans-serif"
+          class="pca-axis-label"
+        >
+          <tspan x={AX_LEFT - 6} dy="0">{line1}</tspan>
+          {line2 && <tspan x={AX_LEFT - 6} dy="13">{line2}</tspan>}
+        </text>
+      );
+    })()}
+
+    <!-- PC1 right end — two lines centred on the axis -->
+    {(() => {
+      const parts = ax1PosLabel.split(' / ');
+      const line1 = parts[0];
+      const line2 = parts[1] ?? '';
+      const y0 = line2 ? CY - 7 : CY - 1;
+      return (
+        <text
+          x={AX_RIGHT + 6} y={y0}
+          text-anchor="start"
+          font-size="11" font-weight="600" font-family="system-ui, sans-serif"
+          class="pca-axis-label"
+        >
+          <tspan x={AX_RIGHT + 6} dy="0">{line1}</tspan>
+          {line2 && <tspan x={AX_RIGHT + 6} dy="13">{line2}</tspan>}
+        </text>
+      );
+    })()}
+
+    <!-- PC1 variance % (below right axis label) -->
+    <text
+      x={AX_RIGHT + 6} y={CY + 22}
+      text-anchor="start"
+      font-size="10" font-weight="400" font-family="system-ui, sans-serif"
+      class="pca-axis-pct"
+    >PC1 · {pct1}% var</text>
+
+    <!-- PC2 top end -->
+    <text
+      x={CX} y={AX_TOP - 8}
+      text-anchor="middle"
+      font-size="11" font-weight="600" font-family="system-ui, sans-serif"
+      class="pca-axis-label"
+    >{ax2PosLabel}</text>
+
+    <!-- PC2 bottom end -->
+    <text
+      x={CX} y={AX_BOT + 20}
+      text-anchor="middle"
+      font-size="11" font-weight="600" font-family="system-ui, sans-serif"
+      class="pca-axis-label"
+    >{ax2NegLabel}</text>
+
+    <!-- PC2 variance % (right of bottom label) -->
+    <text
+      x={CX + 4} y={AX_BOT + 34}
+      text-anchor="middle"
+      font-size="10" font-weight="400" font-family="system-ui, sans-serif"
+      class="pca-axis-pct"
+    >PC2 · {pct2}% var</text>
+
+    <!-- ── Genre bubbles ──────────────────────────────────────────── -->
+    {genrePoints.map(pt => (
+      <circle
+        cx={pt.x.toFixed(1)}
+        cy={pt.y.toFixed(1)}
+        r={pt.r.toFixed(1)}
+        style={`--pca-fill-light:${pt.colorLight};--pca-fill-dark:${pt.colorDark}`}
+        class="pca-dot"
+      />
+    ))}
+
+    <!-- ── Genre labels (short, inside bubble if large enough) ────── -->
+    {genrePoints.map(pt => (
+      <text
+        x={pt.x.toFixed(1)}
+        y={(pt.y - pt.r - 5).toFixed(1)}
+        text-anchor="middle"
+        dominant-baseline="auto"
+        font-size="11" font-weight="600" font-family="system-ui, sans-serif"
+        class="pca-genre-label"
+      >
+        {pt.label}
+      </text>
+    ))}
+
+    <!-- ── Legend ─────────────────────────────────────────────────── -->
+    {rows.map((row, i) => {
+      const col  = i % LEGEND_COLS;
+      const lrow = Math.floor(i / LEGEND_COLS);
+      const lx   = LEGEND_LEFT + col * LEGEND_COL_W;
+      const ly   = PAD_TOP + PLOT_H + PAD_BOT + LEGEND_PAD + lrow * LEGEND_ROW_H;
+      const dl   = colors[i % colors.length].light;
+      const dd   = colors[i % colors.length].dark;
+      return (
+        <>
+          <circle
+            cx={lx + R_DOT}
+            cy={(ly + R_DOT).toFixed(1)}
+            r={R_DOT}
+            style={`--pca-fill-light:${dl};--pca-fill-dark:${dd}`}
+            class="pca-dot"
+          />
+          <text
+            x={lx + R_DOT * 2 + 5}
+            y={ly + R_DOT}
+            dominant-baseline="middle"
+            font-size="12" font-weight="600" font-family="system-ui, sans-serif"
+            class="pca-legend-label"
+          >
+            {row.label}
+          </text>
+        </>
+      );
+    })}
+
+  </svg>
+</figure>
+
+<style>
+  .pca-figure { margin: 1.5rem 0; }
+  .pca-svg    { display: block; width: 100%; height: auto; }
+
+  /* ── Crosshair axes ───────────────────────────────────────────────────── */
+  .pca-axis {
+    stroke: oklch(55% 0 0);
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+    opacity: 0.3;
+  }
+  :global([data-theme="dark"]) .pca-axis,
+  :global(.sl-theme-dark) .pca-axis {
+    stroke: rgba(255,255,255,0.3);
+    opacity: 1;
+  }
+
+  /* ── Axis end labels ──────────────────────────────────────────────────── */
+  .pca-axis-label {
+    fill: oklch(30% 0 0);
+  }
+  :global([data-theme="dark"]) .pca-axis-label,
+  :global(.sl-theme-dark) .pca-axis-label { fill: rgba(255,255,255,0.82); }
+
+  /* ── Variance % labels ────────────────────────────────────────────────── */
+  .pca-axis-pct {
+    fill: oklch(50% 0 0);
+  }
+  :global([data-theme="dark"]) .pca-axis-pct,
+  :global(.sl-theme-dark) .pca-axis-pct { fill: rgba(255,255,255,0.45); }
+
+  /* ── Genre bubbles ────────────────────────────────────────────────────── */
+  .pca-dot {
+    fill: var(--pca-fill-light);
+    fill-opacity: 0.5;
+    stroke: var(--pca-fill-light);
+    stroke-width: 1.5;
+  }
+  :global([data-theme="dark"]) .pca-dot,
+  :global(.sl-theme-dark) .pca-dot {
+    fill: var(--pca-fill-dark);
+    stroke: var(--pca-fill-dark);
+  }
+
+  /* ── Genre labels above bubbles ───────────────────────────────────────── */
+  .pca-genre-label {
+    fill: oklch(25% 0 0);
+  }
+  :global([data-theme="dark"]) .pca-genre-label,
+  :global(.sl-theme-dark) .pca-genre-label { fill: rgba(255,255,255,0.82); }
+
+  /* ── Legend labels ────────────────────────────────────────────────────── */
+  .pca-legend-label {
+    fill: oklch(25% 0 0);
+  }
+  :global([data-theme="dark"]) .pca-legend-label,
+  :global(.sl-theme-dark) .pca-legend-label { fill: rgba(255,255,255,0.82); }
+</style>

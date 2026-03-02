@@ -1,0 +1,484 @@
+---
+// Heatmap.astro — Generic heatmap component.
+// Rows and columns are driven entirely by props; zero hardcoded domain data.
+// Optional sum row and/or sum column controlled by the `sum` prop.
+// All rendering is server-side; zero client JS.
+
+// ── Types ──────────────────────────────────────────────────────────────────────
+
+interface Row {
+  /** Label displayed on the left of the row. */
+  label: string;
+  /** Each entry is [columnLabel, value]. */
+  values: [string, number][];
+}
+
+interface ColColor {
+  light: string;
+  dark: string;
+}
+
+type SumProp = string | { row?: string; column?: string } | undefined;
+
+interface Props {
+  rows: Row[];
+  /** Per-column colors. Cycles via index % colors.length.
+   *  Defaults to a single orange-red entry. */
+  colors?: ColColor[];
+  /** Controls sum row / column rendering.
+   *  - undefined  → no sum row or column
+   *  - string     → sum row AND sum column, both labelled with this string
+   *  - object     → render sum row if `row` is present, sum column if `column` is present */
+  sum?: SumProp;
+}
+
+const {
+  rows,
+  colors = [{ light: "#c74a1a", dark: "#f07040" }],
+  sum,
+} = Astro.props;
+
+// ── Resolve sum labels ─────────────────────────────────────────────────────────
+
+const sumRowLabel: string | undefined =
+  sum === undefined ? undefined : typeof sum === "string" ? sum : sum.row;
+
+const sumColLabel: string | undefined =
+  sum === undefined ? undefined : typeof sum === "string" ? sum : sum.column;
+
+const hasSumRow = sumRowLabel !== undefined;
+const hasSumCol = sumColLabel !== undefined;
+
+// ── Color helper ───────────────────────────────────────────────────────────────
+
+const colLight = (j: number) => colors[j % colors.length].light;
+const colDark = (j: number) => colors[j % colors.length].dark;
+
+// ── Derived ────────────────────────────────────────────────────────────────────
+
+// Column order is inferred from the first row.
+const cols: string[] = rows[0]?.values.map(([colLabel]) => colLabel) ?? [];
+
+const N_ROWS = rows.length;
+const N_COLS = cols.length;
+
+// Resolve cell value: try positional shortcut first, fall back to find().
+function getValue(row: Row, colIndex: number, colLabel: string): number {
+  const entry = row.values[colIndex];
+  if (entry && entry[0] === colLabel) return entry[1];
+  return row.values.find(([c]) => c === colLabel)?.[1] ?? 0;
+}
+
+// Per-column sums (used for sum row).
+const colSums: number[] = cols.map((col, j) =>
+  rows.reduce((acc, row) => acc + getValue(row, j, col), 0),
+);
+
+// Per-row sums (used for sum column).
+const rowSums: number[] = rows.map((row) =>
+  cols.reduce((acc, col, j) => acc + getValue(row, j, col), 0),
+);
+
+// Grand total (bottom-right cell when both sum row and sum col are present).
+const grandTotal = rowSums.reduce((a, b) => a + b, 0);
+
+// Opacity normalisation — data cells use the global max of all data values.
+const globalMax = Math.max(
+  ...rows.flatMap((r) => r.values.map(([, v]) => v)),
+  1,
+);
+const valueOpacity = (v: number) => 0.08 + (v / globalMax) * 0.84;
+
+const sumRowMax = Math.max(...colSums, 1);
+const sumRowOpacity = (v: number) => 0.08 + (v / sumRowMax) * 0.84;
+
+const sumColMax = Math.max(...rowSums, 1);
+const sumColOpacity = (v: number) => 0.08 + (v / sumColMax) * 0.84;
+
+// ── Layout ─────────────────────────────────────────────────────────────────────
+
+const LINE_H = 15; // col header line height
+const ROW_H = 34; // height of each data row
+const COL_W = 68; // width of each column
+const ROW_GAP = 10; // gap between row label area and first cell column
+const COL_GAP = 8; // gap between col header bottom and first row
+
+const LABEL_W = 150;
+const LEFT = LABEL_W + ROW_GAP;
+
+// Col headers: split on space, support up to N lines.
+const colLines = cols.map((c) => c.split(" "));
+const maxLines = Math.max(...colLines.map((l) => l.length), 1);
+const TOP = maxLines * LINE_H + COL_GAP + ROW_H / 2;
+
+const colX = (j: number) => LEFT + COL_W / 2 + j * COL_W;
+const rowY = (i: number) => TOP + ROW_H / 2 + i * ROW_H;
+
+// Sum column x — one slot after the last data column, with a separator gap.
+const SUM_SEP = 12;
+const sumColX = LEFT + N_COLS * COL_W + SUM_SEP + COL_W / 2;
+
+// Sum row y — one slot below the last data row.
+const sumRowY = TOP + N_ROWS * ROW_H + SUM_SEP + ROW_H / 2;
+
+// ViewBox dimensions.
+const VW = LEFT + N_COLS * COL_W + (hasSumCol ? SUM_SEP + COL_W : 0) + 8;
+
+const VH = TOP + N_ROWS * ROW_H + (hasSumRow ? SUM_SEP + ROW_H : 0) + 12;
+
+// Sum column header words (same multi-line logic as data col headers).
+const sumColLines = sumColLabel ? sumColLabel.split(" ") : [];
+---
+
+<figure class="hm-figure">
+  <svg viewBox={`0 0 ${VW} ${VH}`} role="img" class="hm-svg">
+    <!-- ── Col headers ──────────────────────────────────────────────────── -->
+    {
+      cols.map((_, j) => {
+        const x = colX(j);
+        const lines = colLines[j];
+        const baseY = rowY(0) - ROW_H / 2 - COL_GAP;
+        return lines.map((line, li) => {
+          const y = baseY - (lines.length - 1 - li) * LINE_H;
+          return (
+            <text
+              x={x}
+              y={y}
+              text-anchor="middle"
+              font-size="12"
+              font-weight="600"
+              class="hm-col-label"
+              style={`--hm-col-dark:${colDark(j)};--hm-col-light:${colLight(j)}`}
+            >
+              {line}
+            </text>
+          );
+        });
+      })
+    }
+
+    <!-- ── Sum column header ────────────────────────────────────────────── -->
+    {
+      hasSumCol &&
+        sumColLines.map((line, li) => {
+          const baseY = rowY(0) - ROW_H / 2 - COL_GAP;
+          const y = baseY - (sumColLines.length - 1 - li) * LINE_H;
+          return (
+            <text
+              x={sumColX}
+              y={y}
+              text-anchor="middle"
+              font-size="12"
+              font-weight="600"
+              class="hm-col-label hm-sum-header"
+            >
+              {line}
+            </text>
+          );
+        })
+    }
+
+    <!-- ── Row labels + data cells ──────────────────────────────────────── -->
+    {
+      rows.map((row, i) => {
+        const cy = rowY(i);
+        return (
+          <g>
+            {/* Row label */}
+            <text
+              x={LEFT - ROW_GAP}
+              y={cy}
+              text-anchor="end"
+              dominant-baseline="middle"
+              font-size="12"
+              font-weight="600"
+              class="hm-row-label"
+            >
+              {row.label}
+            </text>
+
+            {/* Data cells */}
+            {cols.map((col, j) => {
+              const value = getValue(row, j, col);
+              const cx = colX(j);
+              const op = valueOpacity(value);
+              return (
+                <g>
+                  <rect
+                    x={cx - COL_W / 2 + 2}
+                    y={cy - ROW_H / 2 + 2}
+                    width={COL_W - 4}
+                    height={ROW_H - 4}
+                    rx="4"
+                    style={`--hm-dark:${colDark(j)};--hm-light:${colLight(j)};--op:${op}`}
+                    class="hm-cell"
+                  >
+                    <title>
+                      {row.label} · {col}: {value}
+                    </title>
+                  </rect>
+                  <text
+                    x={cx}
+                    y={cy}
+                    text-anchor="middle"
+                    dominant-baseline="middle"
+                    font-size="12"
+                    font-weight="700"
+                    class="hm-cell-label"
+                    style={`--op:${op}`}
+                  >
+                    {value}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Sum column cell for this row */}
+            {hasSumCol &&
+              (() => {
+                const total = rowSums[i];
+                const op = sumColOpacity(total);
+                return (
+                  <g>
+                    <rect
+                      x={sumColX - COL_W / 2 + 2}
+                      y={cy - ROW_H / 2 + 2}
+                      width={COL_W - 4}
+                      height={ROW_H - 4}
+                      rx="4"
+                      style={`--op:${op}`}
+                      class="hm-cell hm-sum-cell"
+                    >
+                      <title>
+                        {row.label} total: {total}
+                      </title>
+                    </rect>
+                    <text
+                      x={sumColX}
+                      y={cy}
+                      text-anchor="middle"
+                      dominant-baseline="middle"
+                      font-size="10"
+                      font-weight="700"
+                      class="hm-cell-label hm-sum-cell-label"
+                      style={`--op:${op}`}
+                    >
+                      {total}
+                    </text>
+                  </g>
+                );
+              })()}
+          </g>
+        );
+      })
+    }
+
+    <!-- ── Sum row ───────────────────────────────────────────────────────── -->
+    {
+      hasSumRow && (
+        <g>
+          {/* Horizontal divider */}
+          <line
+            x1={LEFT}
+            y1={sumRowY - ROW_H / 2 - SUM_SEP / 2}
+            x2={LEFT + N_COLS * COL_W + (hasSumCol ? SUM_SEP + COL_W : 0) - 4}
+            y2={sumRowY - ROW_H / 2 - SUM_SEP / 2}
+            class="hm-divider"
+          />
+          {/* Sum row label */}
+          <text
+            x={LEFT - ROW_GAP}
+            y={sumRowY}
+            text-anchor="end"
+            dominant-baseline="middle"
+            font-size="12"
+            font-weight="600"
+            class="hm-row-label"
+          >
+            {sumRowLabel}
+          </text>
+          {/* Sum row cells — one per data column */}
+          {cols.map((col, j) => {
+            const total = colSums[j];
+            const cx = colX(j);
+            const op = sumRowOpacity(total);
+            return (
+              <g>
+                <rect
+                  x={cx - COL_W / 2 + 2}
+                  y={sumRowY - ROW_H / 2 + 2}
+                  width={COL_W - 4}
+                  height={ROW_H - 4}
+                  rx="4"
+                  style={`--hm-dark:${colDark(j)};--hm-light:${colLight(j)};--op:${op}`}
+                  class="hm-cell"
+                >
+                  <title>
+                    {col} total: {total}
+                  </title>
+                </rect>
+                <text
+                  x={cx}
+                  y={sumRowY}
+                  text-anchor="middle"
+                  dominant-baseline="middle"
+                  font-size="10"
+                  font-weight="700"
+                  class="hm-cell-label"
+                  style={`--op:${op}`}
+                >
+                  {total}
+                </text>
+              </g>
+            );
+          })}
+          {/* Grand total cell — bottom-right corner when both sum row + col present */}
+          {hasSumCol &&
+            (() => {
+              const op = sumColOpacity(grandTotal);
+              return (
+                <g>
+                  <rect
+                    x={sumColX - COL_W / 2 + 2}
+                    y={sumRowY - ROW_H / 2 + 2}
+                    width={COL_W - 4}
+                    height={ROW_H - 4}
+                    rx="4"
+                    style={`--op:${op}`}
+                    class="hm-cell hm-sum-cell"
+                  >
+                    <title>Grand total: {grandTotal}</title>
+                  </rect>
+                  <text
+                    x={sumColX}
+                    y={sumRowY}
+                    text-anchor="middle"
+                    dominant-baseline="middle"
+                    font-size="10"
+                    font-weight="700"
+                    class="hm-cell-label hm-sum-cell-label"
+                    style={`--op:${op}`}
+                  >
+                    {grandTotal}
+                  </text>
+                </g>
+              );
+            })()}
+        </g>
+      )
+    }
+
+    <!-- ── Sum column vertical divider ──────────────────────────────────── -->
+    {
+      hasSumCol && (
+        <line
+          x1={sumColX - COL_W / 2 - SUM_SEP / 2}
+          y1={TOP - ROW_H / 2}
+          x2={sumColX - COL_W / 2 - SUM_SEP / 2}
+          y2={TOP + N_ROWS * ROW_H + (hasSumRow ? SUM_SEP + ROW_H : 0) - 4}
+          class="hm-divider"
+        />
+      )
+    }
+  </svg>
+</figure>
+
+<style>
+  .hm-figure {
+    margin: 1.5rem 0;
+  }
+  .hm-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* ── Col labels ──────────────────────────────────────────────────────── */
+  .hm-col-label {
+    font-family: system-ui, sans-serif;
+    fill: var(--hm-col-light, oklch(30% 0 0));
+  }
+
+  :global([data-theme="dark"]) .hm-col-label,
+  :global(.sl-theme-dark) .hm-col-label {
+    fill: var(--hm-col-dark, rgba(255, 255, 255, 0.75));
+  }
+
+  /* Sum col/row header — neutral, no per-column color variable */
+  .hm-sum-header {
+    fill: oklch(35% 0 0);
+  }
+
+  :global([data-theme="dark"]) .hm-sum-header,
+  :global(.sl-theme-dark) .hm-sum-header {
+    fill: rgba(255, 255, 255, 0.6);
+  }
+
+  /* ── Row labels ──────────────────────────────────────────────────────── */
+  .hm-row-label {
+    font-family: system-ui, sans-serif;
+    fill: oklch(25% 0 0);
+  }
+
+  :global([data-theme="dark"]) .hm-row-label,
+  :global(.sl-theme-dark) .hm-row-label {
+    fill: rgba(255, 255, 255, 0.82);
+  }
+
+  /* ── Data cells ──────────────────────────────────────────────────────── */
+  .hm-cell {
+    fill: var(--hm-light);
+    fill-opacity: var(--op);
+  }
+
+  :global([data-theme="dark"]) .hm-cell,
+  :global(.sl-theme-dark) .hm-cell {
+    fill: var(--hm-dark);
+    fill-opacity: var(--op);
+  }
+
+  /* Sum cells — neutral grey, independent of column color */
+  .hm-sum-cell {
+    fill: oklch(55% 0 0);
+  }
+
+  :global([data-theme="dark"]) .hm-sum-cell,
+  :global(.sl-theme-dark) .hm-sum-cell {
+    fill: oklch(70% 0 0);
+  }
+
+  /* ── Cell value labels ───────────────────────────────────────────────── */
+  .hm-cell-label {
+    font-family: system-ui, sans-serif;
+    fill: oklch(15% 0 0);
+    fill-opacity: calc(var(--op) * 0.7 + 0.3);
+  }
+
+  :global([data-theme="dark"]) .hm-cell-label,
+  :global(.sl-theme-dark) .hm-cell-label {
+    fill: #fff;
+    fill-opacity: calc(var(--op) * 0.6 + 0.4);
+  }
+
+  .hm-sum-cell-label {
+    fill: oklch(15% 0 0);
+    fill-opacity: calc(var(--op) * 0.6 + 0.4);
+  }
+
+  :global([data-theme="dark"]) .hm-sum-cell-label,
+  :global(.sl-theme-dark) .hm-sum-cell-label {
+    fill: #fff;
+    fill-opacity: calc(var(--op) * 0.5 + 0.5);
+  }
+
+  /* ── Dividers ────────────────────────────────────────────────────────── */
+  .hm-divider {
+    stroke: oklch(60% 0 0 / 0.35);
+    stroke-width: 1;
+  }
+
+  :global([data-theme="dark"]) .hm-divider,
+  :global(.sl-theme-dark) .hm-divider {
+    stroke: rgba(255, 255, 255, 0.25);
+  }
+</style>

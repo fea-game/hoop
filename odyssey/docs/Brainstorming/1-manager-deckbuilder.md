@@ -2,6 +2,16 @@
 title: "Deck builder: Team Manager"
 ---
 
+## Open Questions
+
+### Game Loop Format
+
+Decide how the in-game match loop works. Two candidate designs:
+
+- **Active (card-play):** The player participates in real time by playing cards — calling plays, adjusting the defense, rotating lineups — while the game is in progress. Higher moment-to-moment engagement; requires a UI that communicates game state clearly at speed.
+- **Auto battler (tactic chains):** Before each game the manager assembles tactic chains from collected cards that define how players behave automatically. No in-game intervention; strategic depth lives entirely in pre-game construction. Lower session friction; better for async and mobile contexts.
+- Both modes could coexist as a difficulty or preference toggle, but this must be validated before implementation.
+
 ## 1. Concept
 
 The player takes the role of a **team manager** — a persistent RPG protagonist who accumulates skills, reputation, and tactical knowledge across multiple seasons. The team they manage is rebuilt each season using deck-building and collection mechanics. One season equals one run.
@@ -32,7 +42,7 @@ The manager has attributes, skills, and a narrative identity that develop perman
 - **Manager Level:** XP-based; gates meta-unlock milestones (new card archetypes in the pool, harder league tiers, new player archetypes recruitable).
 - **Background / Origin Story:** Chosen once at creation (former player, data analyst, street ball legend, European tactician). Provides a starting specialisation and can seed a pre-existing Tier 2 rivalry from the first season.
 
-**What persists between seasons:** manager level, reputation, unlocked skill trees, a small set of discovered player archetypes (not specific players), tactical knowledge as manager IQ (widens card option ranges), and optionally one or two players retained on multi-year deals.
+**What persists between seasons:** manager level, reputation, unlocked skill trees, a small set of discovered player archetypes (not specific players), tactical knowledge as manager IQ (widens card option ranges), optionally one or two players retained on multi-year deals, the full manager player dossier (scouting notes and tendency profiles for every player ever encountered), and archived pair-familiarity baselines for players who shared a roster.
 
 ## 4. The Team and Card System
 
@@ -52,7 +62,12 @@ One season is one roguelite run:
 1. **Pre-Season:** Draft from a procedurally generated player pool (Scouting Range determines stat visibility before selection). Acquire free agents within budget (Negotiation reduces cost). Choose a base offensive and defensive scheme from available tactic cards.
 2. **Regular Season:** A series of game weeks, each presenting nodes on a branching path — Match, Training, Scout, Event, or Shop. Time per week is limited; not every node can be visited.
 3. **Playoffs:** A bracket with higher stakes. Elimination ends the run.
-4. **Season End:** Win or lose, meta-progression is applied. The next season begins with the same manager, a new seed, and a new team.
+4. **Season End:** Win or lose, meta-progression is applied. The next season begins with the same manager, a new seed, and a new team. The outgoing season's player pool is partially refreshed:
+   - Roughly half of the season's players are removed from the next draft pool — retired, dropped for quality reasons, or sidelined by career-ending injuries. The attrition is visible at season end so the manager knows what is about to disappear.
+   - The remaining half re-enter the draft pool alongside a new cohort of incoming players, keeping the pool partially familiar and partially unpredictable.
+   - **Cross-season knowledge persists.** The manager's scouting notes, observed tendencies, and familiarity assessments for every player they have ever drafted, played against, or actively scouted are stored permanently in a manager dossier. When a returning player appears in the next draft, the manager already has a profile on them rather than starting blind. This rewards long-term play: a manager who has spent several seasons building up knowledge about specific archetypes or individuals gains a structural advantage in draft evaluation that a first-season manager does not have.
+   - **Cross-season chemistry knowledge persists.** Pair familiarity for players who were on the same roster is archived. If two players who once played together are reassembled — through draft, free agency, or trade — they resume from a residual familiarity baseline rather than zero. The manager can actively target these pairings to front-load chemistry from day one, which is a meaningful draft strategy, especially when rebuilding around a retained core player.
+   - This creates intentional draft arcs across seasons: a manager may pursue a rival's key player specifically because they have built a profile of that player over multiple matchups and believe the chemistry fit is viable — a story that only becomes possible through accumulated cross-season knowledge.
 
 Each season seed generates a unique league, rival teams, player pool, and event calendar. Manager level shifts the game into harder league tiers over time.
 
@@ -81,6 +96,24 @@ Teams in the same league are played multiple times across a season. Repeated mat
 - **Surprise vulnerability** — opponent teams are not static. Between matchups they run training nodes and make trades, just as the manager does. A significant opponent change (a trade, a training block unlocking a new scheme) can partially or fully invalidate the prepared game plan.
 
 Surprise events surface as a pre-match reveal: the game signals something has changed, but not specifically what. The manager decides whether to spend a scout node investigating or proceed and absorb the risk. Thorough preparation can become a liability if it breeds overconfidence. Scouting Range determines how early in the week large opponent changes are detected — a low-range manager may not learn of a major trade until game day.
+
+### Player Knowledge and Visualization
+
+Knowledge about individual players is a first-class mechanic, not background bookkeeping. It is acquired through three channels and rendered visually at every stage where it is relevant:
+
+- **Playing with** — drafting and rostering a player fills in their profile the fastest. Shared practice and match reps surface hidden attributes, confirm or contradict scouted impressions, and unlock pair-familiarity data with other roster members.
+- **Playing against** — facing a player in a match reveals fragments of their tendency profile (preferred spots, defensive tells, clutch traits). The more times the manager faces the same player, the more complete their scouting card becomes.
+- **Active scouting** — spending a Scout node on a specific player accelerates profile completion. Scouting Range determines how many attributes can be revealed per scout action and how reliable early impressions are.
+
+**Visualization:**
+
+- Each player card has a **knowledge track** — a visible fill indicator that reflects how much the manager knows about that player. An unknown prospect in the draft might show position and one visible attribute; a player the manager has coached for two seasons shows a fully filled card.
+- **Hidden attributes** are displayed as obscured slots (e.g. a greyed-out trait bubble). As knowledge accumulates, slots unlock and reveal their content. The reveal is a discrete event — the manager sees the card update — so it feels like a discovery rather than passive stat drift.
+- **Tendency overlays** appear on player cards in match and draft contexts once enough knowledge has been gathered: indicators like "Fades in 4th quarter," "Pick-and-roll liability," or "Elevates vs. rivals." These overlays are visible decision aids, not hidden bonuses.
+- **Pair-familiarity bars** between any two players who have shared a roster are shown on the team overview. The bar fills over the season and depletes when one player is traded away. Archived baselines from prior seasons are shown as a distinct (lighter) fill beneath the current season's progress, so the manager can see the history at a glance.
+- **The player dossier** (accessible at all times) shows every player the manager has ever encountered, organised by knowledge completeness. Players due to re-enter the draft next season are flagged, allowing forward-planning across the off-season.
+
+Knowledge as a resource changes how scouting nodes feel: spending a scout action is not just risk mitigation — it visibly advances a profile that has direct downstream value in the draft, the trade market, and chemistry optimisation.
 
 ### In-Game Match Layer
 
@@ -182,6 +215,13 @@ Based on [What Makes a Great Deckbuilder?](https://youtu.be/d_gBRNAgBKQ), [What 
 - **Surprises reading as unfair punishment** — the pre-match reveal and scout node option are the fairness valve. The player must always have agency to respond, even if it costs resources.
 - **Early Scouting Range gap too punishing** — early-season surprises should have lower stakes (minor tactic shifts, not full scheme overhauls), scaling up as the season and manager level progress.
 - **Knowledge profile as ignored UI** — the preparation cards unlocked by opponent knowledge must produce clear, desirable outcomes. Filling in the profile must feel rewarding, not like bookkeeping.
+
+### Player Knowledge Visualization
+
+- **Knowledge UI as noise** — visible knowledge tracks and tendency overlays only add value if the player acts on them. Every revealed attribute or tendency must connect to a decision the manager can take; decorative reveals are wasted screen space.
+- **Reveal pacing** — too fast and the system becomes trivial after one season with a player; too slow and it feels like gatekeeping. The rate of reveal must be calibrated so full profile completion feels earned but achievable within one season of active play.
+- **Dossier as dead menu** — the player dossier must be consulted during live decisions (draft, trade evaluation, scout node choice), not browsed in a separate management screen. Contextual surfacing of relevant profiles at decision points is required.
+- **Cross-season knowledge advantage too deterministic** — if a fully profiled returning player is always the correct draft pick, variety collapses. Unknown new entrants must carry genuine upside that known quantities cannot offer (ceiling uncertainty, off-the-board potential).
 
 ### Nemesis Mechanic
 

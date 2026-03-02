@@ -2,26 +2,91 @@
 title: Game Genres
 ---
 
+export const qualities = [
+  { label: 'Build / customisation',     values: [['Roguelite',10], ['Deck Building',10], ['Auto Battler', 9], ['RPG',  9], ['Pokémon',  8], ['Basketball',  8], ['City Building',  4]] },
+  { label: 'Mastery curve',             values: [['Roguelite', 9], ['Deck Building', 8], ['Auto Battler', 8], ['RPG',  7], ['Pokémon',  7], ['Basketball',  9], ['City Building',  6]] },
+  { label: 'Skill expression',          values: [['Roguelite', 9], ['Deck Building', 8], ['Auto Battler', 7], ['RPG',  5], ['Pokémon',  5], ['Basketball', 10], ['City Building',  7]] },
+  { label: 'Social vocabulary',         values: [['Roguelite', 7], ['Deck Building', 7], ['Auto Battler', 8], ['RPG',  7], ['Pokémon',  8], ['Basketball', 10], ['City Building',  3]] },
+  { label: 'Replayability',             values: [['Roguelite',10], ['Deck Building',10], ['Auto Battler', 9], ['RPG',  4], ['Pokémon',  4], ['Basketball',  5], ['City Building',  7]] },
+  { label: 'Power fantasy',             values: [['Roguelite', 9], ['Deck Building', 8], ['Auto Battler', 7], ['RPG',  8], ['Pokémon',  5], ['Basketball',  7], ['City Building',  4]] },
+  { label: 'Strategic depth',           values: [['Roguelite', 7], ['Deck Building', 9], ['Auto Battler', 8], ['RPG',  5], ['Pokémon',  5], ['Basketball',  4], ['City Building', 10]] },
+  { label: 'Emergent complexity',       values: [['Roguelite', 9], ['Deck Building', 9], ['Auto Battler', 8], ['RPG',  4], ['Pokémon',  4], ['Basketball',  3], ['City Building', 10]] },
+  { label: 'Progression visibility',    values: [['Roguelite', 7], ['Deck Building', 3], ['Auto Battler', 3], ['RPG',  9], ['Pokémon',  8], ['Basketball',  8], ['City Building',  4]] },
+  { label: 'Risk / reward tension',     values: [['Roguelite',10], ['Deck Building', 9], ['Auto Battler', 8], ['RPG',  4], ['Pokémon',  3], ['Basketball',  3], ['City Building',  3]] },
+  { label: 'Character / team identity', values: [['Roguelite', 3], ['Deck Building', 2], ['Auto Battler', 8], ['RPG',  9], ['Pokémon',  9], ['Basketball',  8], ['City Building',  1]] },
+  { label: 'Session flexibility',       values: [['Roguelite', 8], ['Deck Building', 8], ['Auto Battler', 7], ['RPG',  2], ['Pokémon',  3], ['Basketball',  5], ['City Building',  2]] },
+  { label: 'Exploration & discovery',   values: [['Roguelite', 3], ['Deck Building', 2], ['Auto Battler', 2], ['RPG',  9], ['Pokémon',  8], ['Basketball',  2], ['City Building',  7]] },
+  { label: 'Narrative weight',          values: [['Roguelite', 3], ['Deck Building', 2], ['Auto Battler', 1], ['RPG', 10], ['Pokémon',  5], ['Basketball',  4], ['City Building',  2]] },
+  { label: 'Collection drive',          values: [['Roguelite', 2], ['Deck Building', 3], ['Auto Battler', 3], ['RPG',  4], ['Pokémon', 10], ['Basketball',  2], ['City Building',  2]] },
+];
+
+export const genres = qualities
+  .slice()
+  .sort((a, b) => ({'Build / customisation':0,'Mastery curve':1,'Skill expression':2,'Power fantasy':3,'Replayability':4,'Risk / reward tension':5,'Emergent complexity':6,'Strategic depth':7,'Session flexibility':8,'Social vocabulary':9,'Character / team identity':10,'Progression visibility':11,'Exploration & discovery':12,'Narrative weight':13,'Collection drive':14}[a.label] ?? 99) - ({'Build / customisation':0,'Mastery curve':1,'Skill expression':2,'Power fantasy':3,'Replayability':4,'Risk / reward tension':5,'Emergent complexity':6,'Strategic depth':7,'Session flexibility':8,'Social vocabulary':9,'Character / team identity':10,'Progression visibility':11,'Exploration & discovery':12,'Narrative weight':13,'Collection drive':14}[b.label] ?? 99))
+  .reduce((acc, q) => {
+    q.values.forEach(([genre, value]) => {
+      const existing = acc.find(g => g.label === genre);
+      if (existing) {
+        existing.values.push([q.label, value]);
+        existing.sum += value;
+      } else {
+        acc.push({ label: genre, values: [[q.label, value]], sum: value });
+      }
+    });
+    return acc;
+  }, [])
+  .sort((a, b) => b.value - a.value);
+
+export const colors = [
+  { dark: '#f07070', light: '#c73030' }, // red
+  { dark: '#5dd4c8', light: '#1a9e94' }, // teal
+  { dark: '#f5c05a', light: '#c9921a' }, // amber
+  { dark: '#f07ab0', light: '#c73a7a' }, // pink
+  { dark: '#70d490', light: '#2a9e50' }, // green
+  { dark: '#a078e8', light: '#5828b0' }, // indigo
+  { dark: '#c8f060', light: '#7aaa10' }, // lime
+  { dark: '#ffa07a', light: '#c85a20' }, // orange
+  { dark: '#60d0f0', light: '#0878a8' }, // sky
+  { dark: '#e08888', light: '#902020' }, // crimson
+  { dark: '#f8e060', light: '#a87e00' }, // yellow
+  { dark: '#b898f0', light: '#6c3fd4' }, // violet
+  { dark: '#a8e8b8', light: '#1e7840' }, // mint
+  { dark: '#f8c8a0', light: '#b85a10' }, // sienna
+  { dark: '#88c8f8', light: '#1050a0' }, // cobalt
+  { dark: '#f0d0f8', light: '#9a3ab8' }, // lavender
+];
+
+import Heatmap from '@charts/Heatmap.astro';
+import PcaChart from '@charts/PcaChart.astro';
+
 ### What the analysis shows
 
-The six genres share a clear hierarchy of design priorities. Three qualities — mastery curve, build/customisation, and social vocabulary — are near-universal: present in five or six of the six genres and therefore the safest foundation for any game targeting players drawn from across this set.
+The seven genres share a clear hierarchy of design priorities. Three qualities — mastery curve, build/customisation, and social vocabulary — are near-universal: present in six or seven of the seven genres and therefore the safest foundation for any game targeting players drawn from across this set.
 
 <details>
 <summary style="font-style:italic;">Expand</summary>
 A second tier (skill expression, power fantasy, progression visibility) is broadly cross-genre. Below that, qualities become genre-specific and do not carry across audiences.
 
-The pair-overlap and MDS data both point to the same structural finding: Basketball, RPG, Roguelite, and Deck Building form a tightly connected cluster. They share more design priorities with each other than with any genre outside the group. City Building is the outlier — its priorities (emergent complexity, spatial strategy, systems-over-identity) diverge from the rest of the cluster and are not strong candidates for import into a basketball-adjacent game. Pokémon is structurally an RPG variant with a collection and discovery layer added on top; its most relevant contribution to this design space is the team-as-build model, not the world-exploration mechanics.
+The pair-overlap and MDS data both point to the same structural finding: Basketball, RPG, Roguelite, Deck Building, and Auto Battler form a tightly connected cluster. They share more design priorities with each other than with any genre outside the group. City Building is the outlier — its priorities (emergent complexity, spatial strategy, systems-over-identity) diverge from the rest of the cluster and are not strong candidates for import into a basketball-adjacent game. Pokémon is structurally an RPG variant with a collection and discovery layer added on top; its most relevant contribution to this design space is the team-as-build model, not the world-exploration mechanics.
 
-The most commercially durable games across all five relevant genres reward the same underlying player behaviour: constructing something personal (a character, a deck, a build, a team) and then testing it. That is the genre-crossing hook. Games that deliver this feeling — and make the player feel the construction was their own — sustain long-tail engagement and generate community vocabulary around the build system rather than around the content.
+Auto Battler slots between Roguelite/Deck Building and Pokémon in this cluster. It shares ten qualities with Roguelite, ten with Deck Building, eight with Basketball, and seven with Pokémon. Its defining contribution is the roster-as-build model operating under shared-scarcity pressure — a form of team construction that occurs in real time against other players rather than in a single-player planning phase. The economics layer (gold, interest, streak management) is unique to the genre and has no close equivalent in the other six.
+
+Auto Battler is structurally unique in the dataset: it is the only genre that holds both character/team identity (shared with RPG, Pokémon, and Basketball) and the full replayability/risk/session flexibility cluster (shared with Roguelite and Deck Building). Roguelite and Deck Building have the replayability cluster but not team identity; RPG and Pokémon have team identity but not the replayability cluster. Auto Battler is the one genre where both coexist. This makes it the closest reference genre for any design that wants to combine a roster-based identity model with session-length replayability.
+
+The data also clarifies why Basketball's strongest genre connections are to Roguelite and Auto Battler rather than to RPG. The shared qualities between Basketball and the Roguelite/Auto Battler pair — beyond the universal tier of mastery curve, build/customisation, and social vocabulary — are replayability and session flexibility: two qualities Basketball carries but RPG and Pokémon do not. This structural alignment was invisible in the original six-genre analysis and only becomes legible with Auto Battler present as a data point.
+
+The most commercially durable games across all seven relevant genres reward the same underlying player behaviour: constructing something personal (a character, a deck, a build, a team) and then testing it. That is the genre-crossing hook. Games that deliver this feeling — and make the player feel the construction was their own — sustain long-tail engagement and generate community vocabulary around the build system rather than around the content.
 </details>
 
 ### Implications for genre archetype selection
 
-The analysis supports drawing primarily from **Basketball, RPG, and Roguelite** as the core archetype mix. These three genres share six, six, and six qualities respectively with each other in pairwise comparison — the strongest connections in the dataset.
+The analysis supports drawing primarily from **Basketball, RPG, and Roguelite** as the core archetype mix. Pairwise, Basketball shares eight qualities with Roguelite, seven with RPG, and Roguelite shares seven with RPG — the strongest pairwise connections Basketball has with any other genre in the dataset.
 
 <details>
 <summary style="font-style:italic;">Expand</summary>
 Deck Building adds relevant structural ideas (engine building, synergy discovery, controlled randomness) but functions more as a design-pattern library than a genre to emulate wholesale, given that its distinguishing mechanical surface (cards as the medium) is the vehicle rather than the experience.
+
+Auto Battler is the seventh genre added to the analysis. It shares the same core design grammar as Deck Building — draft units from a limited pool, combine them for upgrades, discover synergies, pilot the resulting system through a series of tests — but introduces two structural differences: the shared draft pool creates live competitive scarcity absent from deck builders, and the economics layer (interest compounding, streak management, roll timing) adds a resource management dimension closer to City Building than to roguelites. For a basketball-adjacent game, Auto Battler's most relevant contribution is not its competitive multiplayer format but its demonstration that team assembly under scarcity pressure produces the same synergy-discovery emotional payoff as roguelite build crafting, with the additional social dimension of a shared meta and live opponent scouting. The genre's secondary insight — that its core loop works regardless of the thematic vessel (chess pieces, animals, inventory items) — supports the inference that a basketball-specific unit roster could deliver the same experience.
 
 City Building should be treated as a source of specific mechanics to consider (milestone unlocks, exploration-as-reward pacing) rather than a genre to inherit identity from. Its design DNA — systems-over-identity, spatial problem-solving — does not reinforce the qualities that make the other genres work for a basketball-centred game.
 
@@ -39,6 +104,8 @@ The open question from the [Deck Building Games section in the Inspiration docum
 
 **The roster/team model is a genuine alternative, but changes the design substantially.** Pokémon shows that roster building can sustain deep build identity and a competitive community, but the emotional mechanism is different: the team is the build, and identity is distributed. This model carries collection drive (currently a single-genre quality, unique to Pokémon*) and character/team identity, but loses the concentrated personal investment of the single-protagonist arc. NBA 2K's franchise mode and MyTeam mode confirm that roster-focused play exists in the basketball space — but player reception data shows that the single-player MyCareer arc drives significantly stronger retention and narrative investment than team management modes.
 
+**Auto Battler is the most relevant reference genre if the roster model is pursued.** It is the only genre in the dataset that combines character/team identity with the full replayability and session flexibility cluster — something neither Roguelite nor Deck Building achieves. Auto Battler demonstrates that a team assembly loop can sustain the same session-length, one-more-run engagement pattern as a single-protagonist roguelite, without requiring the player to invest in a single persistent character arc. However, it achieves this through shared competitive scarcity (a live multiplayer structure), which is a distinct design commitment. For a single-player basketball game, the relevant takeaway is not the format but the structural finding: team identity and replayability are not mutually exclusive design targets.
+
 **The data favours starting with the single-protagonist model.** It has a broader base of genre support, a more direct connection to the RPG and Roguelite mechanics that are the clearest design analogues, and a well-established community behaviour (build discussion, archetype comparison) that scales without requiring multiplayer infrastructure. The roster model could be introduced as a secondary layer — analogous to how Pokémon's trading and competitive metagame extend a fundamentally single-player structure — without being the primary design target.
 
 ---
@@ -51,70 +118,54 @@ The open question from the [Deck Building Games section in the Inspiration docum
 <details style="margin-top:1.75rem; margin-bottom:2.5rem;">
   <summary style="font-style:italic; margin-bottom:-8px;">Data</summary>
 
-Fifteen design qualities were scored across six genres. Mastery curve is the only universal quality, present in all six. Build/customisation and social vocabulary appear in five. The bottom four qualities — risk/reward tension, session flexibility, collection drive, and narrative weight — are effectively genre-exclusive, concentrated in one or two genres each.
+Fifteen design qualities were scored across seven genres. Mastery curve is the only universal quality, present in all seven. Build/customisation and social vocabulary appear in six. The bottom two qualities — collection drive and narrative weight — are effectively single-genre properties.
 
-| Quality | Presence | Genres |
-|---|:---:|---|
-| Mastery curve             | `██████` | Basketball, RPG, City Building, Pokémon, Roguelite, Deck Building (6) |
-| Build / customisation     | `█████·` | Basketball, RPG, Pokémon, Roguelite, Deck Building (5) |
-| Social vocabulary         | `█████·` | Basketball, RPG, Pokémon, Roguelite, Deck Building (5) |
-| Skill expression          | `████··` | Basketball, City Building, Roguelite, Deck Building (4) |
-| Power fantasy             | `████··` | Basketball, RPG, Roguelite, Deck Building (4) |
-| Progression visibility    | `████··` | Basketball, RPG, Pokémon, Roguelite (4) |
-| Replayability             | `███···` | City Building, Roguelite, Deck Building (3) |
-| Strategic depth           | `███···` | City Building, Roguelite, Deck Building (3) |
-| Emergent complexity       | `███···` | City Building, Roguelite, Deck Building (3) |
-| Exploration & discovery   | `███···` | RPG, City Building, Pokémon (3) |
-| Character / team identity | `███···` | Basketball, RPG, Pokémon (3) |
-| Risk / reward tension     | `██····` | Roguelite, Deck Building (2) |
-| Session flexibility       | `██····` | Roguelite, Deck Building (2) |
-| Collection drive          | `█·····` | Pokémon (1) |
-| Narrative weight          | `█·····` | RPG (1) |
+| Quality                   | Presence  | Genres |
+|---------------------------|:---------:|--------|
+| Mastery curve             | `███████` | Basketball, RPG, City Building, Pokémon, Roguelite, Deck Building, Auto Battler (7) |
+| Build / customisation     | `██████·` | Basketball, RPG, Pokémon, Roguelite, Deck Building, Auto Battler (6)                |
+| Social vocabulary         | `██████·` | Basketball, RPG, Pokémon, Roguelite, Deck Building, Auto Battler (6)                |
+| Replayability             | `████··`  | City Building, Roguelite, Deck Building, Auto Battler (4)                           |
+| Strategic depth           | `████··`  | City Building, Roguelite, Deck Building, Auto Battler (4)                           |
+| Emergent complexity       | `████··`  | City Building, Roguelite, Deck Building, Auto Battler (4)                           |
+| Risk / reward tension     | `███···`  | Roguelite, Deck Building, Auto Battler (3)                                          |
+| Session flexibility       | `███···`  | Roguelite, Deck Building, Auto Battler (3)                                          |
+| Skill expression          | `█████·`  | Basketball, City Building, Roguelite, Deck Building, Auto Battler (5)               |
+| Power fantasy             | `█████·`  | Basketball, RPG, Roguelite, Deck Building, Auto Battler (5)                         |
+| Character / team identity | `████··`  | Basketball, RPG, Pokémon, Auto Battler (4)                                          |
+| Progression visibility    | `████··`  | Basketball, RPG, Pokémon, Roguelite (4)                                             |
+| Exploration & discovery   | `███···`  | RPG, City Building, Pokémon (3)                                                     |
+| Collection drive          | `█·····`  | Pokémon (1)                                                                         |
+| Narrative weight          | `█·····`  | RPG (1)                                                                             |
+
+| Genre         | Coverage          | Qualities |
+|---------------|:-----------------:|-----------|
+| Auto Battler  | `███████████····` | Mastery curve, Build / customisation, Social vocabulary, Skill expression, Power fantasy, Character / team identity, Replayability, Strategic depth, Emergent complexity, Risk / reward tension, Session flexibility (11) |
+| Roguelite     | `███████████····` | Mastery curve, Build / customisation, Social vocabulary, Skill expression, Power fantasy, Progression visibility, Replayability, Strategic depth, Emergent complexity, Risk / reward tension, Session flexibility (11)    |
+| Deck Building | `██████████·····` | Mastery curve, Build / customisation, Social vocabulary, Skill expression, Power fantasy, Replayability, Strategic depth, Emergent complexity, Risk / reward tension, Session flexibility (10)                            |
+| RPG           | `██████████·····` | Mastery curve, Build / customisation, Social vocabulary, Skill expression, Power fantasy, Strategic depth, Character / team identity, Progression visibility, Exploration & discovery, Narrative weight (10)              |
+| Basketball    | `█████████······` | Mastery curve, Build / customisation, Social vocabulary, Skill expression, Power fantasy, Character / team identity, Progression visibility, Replayability, Session flexibility (9)                                      |
+| Pokémon       | `███████████····` | Mastery curve, Build / customisation, Social vocabulary, Skill expression, Power fantasy, Strategic depth, Character / team identity, Progression visibility, Exploration & discovery, Narrative weight, Collection drive (11) |
+| City Building | `██████·········` | Mastery curve, Skill expression, Replayability, Strategic depth, Emergent complexity, Exploration & discovery (6)                                                                                                         |
 </details>
 
-![Design quality universality bubble map](./assets/quality-bubbles.svg)
+<Heatmap
+  rows={qualities}
+  colors={colors}
+  sum={{ row: "Coverage", column: "Presence" }}
+/>
 
 <details style="margin-bottom:2.5rem;">
 <summary style="font-style:italic;">Quality Universality</summary>
-Three qualities — mastery curve, build/customisation, and social vocabulary — appear across five or six of the six genres surveyed, making them the closest thing to universal design pillars in this space. A second cluster (skill expression, power fantasy, progression visibility) appears in four genres, still broadly cross-genre but not universal. Everything below that is genre-specific: risk/reward tension and session flexibility belong almost exclusively to roguelites and deck builders; collection drive and narrative weight are effectively single-genre properties. The implication for @hoop/odyssey: any design that foregrounds mastery curve, build identity, and social vocabulary is already aligned with the majority of the reference genres simultaneously.
+Three qualities — mastery curve, build/customisation, and social vocabulary — appear across six or seven of the seven genres surveyed, making them the closest thing to universal design pillars in this space. A second cluster (skill expression, power fantasy) appears in five genres; progression visibility and character/team identity in four. Risk/reward tension, session flexibility, replayability, strategic depth, and emergent complexity form a mid-tier group at three to four genres each. Collection drive and narrative weight remain single-genre properties. The addition of Auto Battler notably elevates risk/reward tension and session flexibility from two-genre properties to three-genre ones, confirming that these qualities are structurally more cross-genre than the original six suggested. The implication for @hoop/odyssey: any design that foregrounds mastery curve, build identity, and social vocabulary is already aligned with the majority of the reference genres simultaneously.
 </details>
 
-![Genre pair shared-quality matrix](./assets/genre-pair-matrix.svg)
+<PcaChart rows={genres} colors={colors} />
 
-<details style="margin-bottom:2.5rem;">
-<summary style="font-style:italic;">Shared Qualities by Pair</summary>
-The pair counts reveal two distinct clusters of genre affinity. Roguelite and Deck Building share ten qualities — the highest overlap in the set — confirming they are effectively the same design space expressed through different mechanics. Basketball connects strongly to both RPG and Roguelite (six shared qualities each), meaning it sits at the intersection of character-building and run-based progression. City Building is the most isolated genre: its strongest links are to Roguelite and Deck Building (five each), driven entirely by strategic depth, emergent complexity, replayability, and skill expression — not the social or progression qualities that define basketball's connections. Pokémon clusters with RPG (six shared), confirming that creature-collection is structurally an RPG variant. The practical implication: a design that combines basketball's mastery and social vocabulary with roguelite's build crafting and risk/reward tension is reinforced by the largest overlap in the dataset.
-
-**Basketball ↔ RPG (6):** Build / customisation · Progression visibility · Character / team identity · Mastery curve · Social vocabulary · Power fantasy
-
-**Basketball ↔ Pokémon (5):** Build / customisation · Progression visibility · Character / team identity · Mastery curve · Social vocabulary
-
-**Basketball ↔ Roguelite (6):** Build / customisation · Progression visibility · Skill expression · Mastery curve · Social vocabulary · Power fantasy
-
-**Basketball ↔ Deck Building (5):** Build / customisation · Skill expression · Mastery curve · Social vocabulary · Power fantasy
-
-**RPG ↔ Pokémon (6):** Build / customisation · Progression visibility · Exploration & discovery · Character / team identity · Mastery curve · Social vocabulary
-
-**RPG ↔ Roguelite (5):** Build / customisation · Progression visibility · Mastery curve · Social vocabulary · Power fantasy
-
-**RPG ↔ Deck Building (4):** Build / customisation · Mastery curve · Social vocabulary · Power fantasy
-
-**Pokémon ↔ Roguelite (4):** Build / customisation · Progression visibility · Mastery curve · Social vocabulary
-
-**City Building ↔ Roguelite (5):** Strategic depth · Emergent complexity · Replayability · Skill expression · Mastery curve
-
-**City Building ↔ Deck Building (5):** Strategic depth · Emergent complexity · Replayability · Skill expression · Mastery curve
-
-**Roguelite ↔ Deck Building (10):** Build / customisation · Strategic depth · Emergent complexity · Replayability · Risk / reward tension · Skill expression · Mastery curve · Session flexibility · Social vocabulary · Power fantasy
+<details style="margin-bottom:1.5rem;">
+<summary style="font-style:italic;">Genre Similarity</summary>
+The scaling separates the seven genres into distinct groupings based on how many design qualities they share. Roguelite, Deck Building, and Auto Battler form a tight cluster — all three share ten qualities with each other, the highest overlap in the dataset, confirming they are the same design space expressed through different mechanics and formats. The ten shared qualities across this trio are: build/customisation, strategic depth, emergent complexity, replayability, risk/reward tension, skill expression, mastery curve, session flexibility, social vocabulary, and power fantasy. Basketball's strongest connections in the dataset are with Roguelite and Auto Battler — eight shared qualities each — not with RPG. Basketball's eight-quality overlap with Roguelite covers: build/customisation, mastery curve, skill expression, social vocabulary, replayability, power fantasy, progression visibility, and session flexibility; with Auto Battler it covers: build/customisation, mastery curve, skill expression, social vocabulary, replayability, power fantasy, character/team identity, and session flexibility. Basketball ↔ RPG is seven shared qualities (build/customisation, mastery curve, skill expression, social vocabulary, power fantasy, progression visibility, character/team identity) — solid, but not the closest link. This means Basketball's strongest connections span both the social/identity tier and the replayability/session tier, giving it broad structural affinity with the Roguelite/Deck Building/Auto Battler cluster as well as with RPG. City Building is the clear outlier, positioned far from every other genre: its design priorities (emergent complexity, infrastructure, spatial strategy) have almost no overlap with the social, narrative, and build qualities that define the other six. The distance between City Building and the rest of the cluster is the most informative single data point: it shows that strategic depth and emergent complexity are not genre-crossover qualities — they are specific to genres that prize systems over identity. Auto Battler's position adjacent to Roguelite and Deck Building rather than adjacent to Basketball confirms that its design contribution to a basketball game is structural (the draft/synergy/economics model) rather than cultural. Pokémon clusters between RPG and Auto Battler, reflecting its dual nature as an RPG variant with a roster-assembly layer — its position in the map correctly identifies it as a bridge genre rather than a primary archetype.
 </details>
-
-![Genre MDS plot](./assets/genre-mds.svg)
-
-<details style="margin-bottom:2.5rem;">
-<summary style="font-style:italic;">Multidimensional Scaling</summary>
-The scaling separates the six genres into two distinct groupings. Roguelite and Deck Building are close neighbours, confirming their near-identical design DNA. Basketball sits closest to RPG and moderately close to Pokémon — its design affinities run through character identity and progression, not strategic systems. City Building is the clear outlier, positioned far from every other genre: its design priorities (emergent complexity, infrastructure, spatial strategy) have almost no overlap with the social, narrative, and build qualities that define the other five. The distance between City Building and the rest of the cluster is the most informative single data point: it shows that strategic depth and emergent complexity are not genre-crossover qualities — they are specific to genres that prize systems over identity.
-</details>
-
 
 ## Roguelite Games
 
@@ -315,6 +366,97 @@ Balatro entered the market via poker — a mechanic familiar to a vastly larger 
 Valve offers an official bundle pairing Slay the Spire and Balatro on Steam — treating them as the canonical genre pair. This curation has commercial consequences: players who finish one are actively directed to the other, and the bundle's existence signals to new buyers that these are the authoritative genre entries. For any new deck builder, displacing or differentiating from this canonical pair is the primary go-to-market challenge.
 
 **Sources:** Steam product pages — Slay the Spire (app/646570) and Balatro (app/2379780), accessed Feb 2026; Steam bundle — Balatro + Slay the Spire (bundle/46486); Game Developer — Hades devs interview (Feb 2026).
+</details>
+
+## Auto Battler Games
+
+Team assembly and synergy optimisation — building the strongest possible roster from a shared, randomised unit pool, managing a live economy, and watching the resulting team perform automatically.
+
+### Core Mechanics
+
+The auto battler genre was crystallised by *Dota Auto Chess* (Drodo Studio, January 2019), a community-made mod for *Dota 2* that reached over eight million players by May 2019. Its defining structural feature is the **preparation-then-battle loop**: the player assembles a team during a planning phase, then watches the battle resolve without further input. The player's role is entirely pre-battle — the execution is automated. This separates the genre from traditional strategy games, shifting the skill domain from real-time execution to planning, resource allocation, and system understanding.
+
+<details>
+<summary style="font-style:italic;">Expand</summary>
+
+**Defining mechanics across the genre:**
+
+1. **Battle royale elimination format** — eight players compete simultaneously in a single lobby. Each round, players are randomly paired for 1v1 matchups. The loser takes health damage based on surviving enemy units. Players are eliminated when their health reaches zero; last survivor wins. This format creates a constantly shifting competitive context: the player must account not only for their own board state but for the evolving strength of all other seven players.
+2. **Preparation phase and automated combat** — each round begins with a gold-spending preparation phase in which the player buys units, levels up, and arranges the board. When preparation ends, the player's units fight the paired opponent's units autonomously. The player watches. No further input is possible until the next round's preparation phase. This asymmetry — total control in preparation, zero control in combat — is the genre's defining structural quirk.
+3. **Shared unit pool** — all players draw from the same finite pool of units. A unit another player holds cannot appear in your shop, and a unit they sell returns to the pool. This creates competitive scarcity: contested units become harder to find, and scouting opponents' boards is a practical skill with direct strategic implications. Holding units to deny opponents is a legitimate strategy.
+4. **Unit combining and star levels** — three copies of the same unit combine automatically into one upgraded two-star version. Three two-star copies combine into a three-star version, requiring nine units in total. Three-star units are significantly more powerful. This combining mechanic creates a graduated build process: the investment in duplicates is a concrete strategic decision, and reaching three-star on a carry unit is a meaningful power spike.
+5. **Synergy / trait system** — each unit belongs to one or more synergy classes (e.g. "Mage," "Dragon," "Assassin"). Fielding a threshold number of units sharing a synergy activates a passive bonus for all units of that type. Synergies stack: a player might activate three partial synergies, or sacrifice breadth for a dominant single synergy. The interaction between unit choice, synergy thresholds, and available units from the shared pool is the genre's primary strategic layer.
+6. **Economy and interest mechanic** — players earn gold each round through a base income and a conditional interest bonus: holding unspent gold earns additional income (typically one bonus gold per ten held, up to a cap). This creates a recurring risk/reward decision: spend gold on units now and lose the interest compounding benefit, or hold gold for greater income later and accept a weaker board in the interim. Win and loss streaks also provide bonus gold, creating the strategic possibility of intentionally losing early rounds ("loss streaking") to accumulate gold and economic tempo.
+7. **Levelling and board capacity** — players spend gold to level up, which raises the player level and increases the maximum number of units that can be fielded simultaneously. Higher levels also improve the probability of rare units appearing in the shop. Levelling is a direct resource trade-off: gold spent on experience is not spent on units, and a larger board is only an advantage if it can be filled with units of appropriate quality.
+8. **Itemisation layer** — items drop from PvE rounds (neutral creep stages fought against the game itself) and are assigned to units to improve their effectiveness. Items can combine into stronger versions. Optimal item distribution — matching items to the units that best use them — is a secondary strategic layer that can determine outcomes between otherwise similar boards.
+9. **Positioning** — units are placed on a grid board before combat. Position affects which units engage first, which units receive initial fire, and whether certain unit abilities land effectively. Correct positioning for the specific matchup (front row tanks absorbing damage, back row carries outputting damage) is a consistent skill expression differentiator between players of different experience levels.
+10. **Scouting** — players can observe other players' boards in real time during the preparation phase. Identifying which units opponents are holding (and therefore contested), which synergies they are building toward, and which players are strong or weak informs build direction and item routing decisions. Scouting is a skill that separates experienced players from newcomers more consistently than any individual strategic decision.
+11. **Rolling the shop** — the unit shop refreshes automatically each round, but players can spend gold to reroll it manually. The decision of when to roll (to find specific units) versus holding gold for interest or level-ups is a recurring micro-level economic choice. Forcing the shop on a specific round to complete a unit combination ("rolldown") is a learnable, plannable action — not pure luck.
+12. **Seasonal content rotation** — the genre's major implementations (Teamfight Tactics in particular) refresh the unit and synergy pool on a seasonal cadence, replacing old content and introducing new comps and interactions. Each season effectively resets the meta, requiring players to relearn optimal strategies and rediscover synergies. This prevents long-term stagnation and gives veteran players a recurring entry point for the same discovery experience that attracted new players initially.
+
+**Notable examples:** *Dota Auto Chess* (Drodo Studio / Valve Dota 2 mod, 2019), *Teamfight Tactics* (Riot Games, within League of Legends client / standalone mobile, 2019), *Dota Underlords* (Valve, 2019), *Hearthstone Battlegrounds* (Blizzard, within Hearthstone, 2019), *Auto Chess* (Dragonest / Drodo, standalone, 2019), *Super Auto Pets* (Team Wood Games, 2021), *The Bazaar* (Tempo, 2024).
+
+**Sources:** Wikipedia — Auto battler; Wikipedia — Dota Auto Chess; Wikipedia — Teamfight Tactics; PCGamesN — "This new Dota 2 custom mode is way more popular than Artifact"; Kotaku — "A Guide To Auto Chess, 2019's Most Popular New Game Genre" (Nathan Grayson, Jun 2019); Rock Paper Shotgun — "Spawn Point: What on earth is an auto battler?" (Matt Cox, Aug 2019).
+</details>
+
+### What Makes an Auto Battler Successful
+
+**1. The economy as the primary skill differentiator**
+The genre's surface appears luck-driven — players receive random units from a shared pool. The differentiator is economic management: players who understand when to hold gold for interest, when to roll for units, when to level up, and when to transition from loss streaking to winning win more frequently regardless of luck variance. This layer is invisible to new players (who experience the randomness) and fully legible to experienced players (who experience it as a decision tree). The gap between perceived and actual skill depth is the genre's most important retention mechanism for competitive players.
+
+<details>
+<summary style="font-style:italic;">Expand</summary>
+
+**2. Controlled randomness that preserves agency**
+The genre occupies a specific position on the luck-skill spectrum. Kotaku's Nathan Grayson described it as "gambling without real money" — the shop's unit randomness produces the same dopamine loop as a slot machine, but with the critical difference that player decisions consistently outweigh luck over a session of multiple rounds. The unit pool, interest mechanic, and reroll system mean that skilled players can actively increase the probability of finding the units they need. The randomness is felt as excitement rather than frustration precisely because the player has tools to manage it.
+
+**3. Synergy discovery as the equivalent of roguelite build crafting**
+The genre's closest design analogue to the roguelite genre is the experience of finding unexpected trait combinations that produce disproportionate results. The best auto battler play sessions involve identifying an underpowered unit combination that synergises with the items the player happened to receive — a genuinely discovered strategy not prescribed by the current meta. This within-game discovery loop (finding the comp that works *with these specific items and units*) is structurally identical to the roguelite synergy discovery payoff and creates the same social vocabulary: players share discovered combinations and discuss whether specific item-unit pairings are as powerful as they appeared.
+
+**4. Scouting as the skill layer that scales indefinitely**
+Unlike most strategy games where the optimal macro strategy can eventually be memorised, auto battlers add live competitive pressure through the shared pool. Scouting — knowing which units other players are holding, which synergies they are building, and how close they are to completing a unit combination — is a skill layer that never becomes fully masterable. The lobby is always different; the units always contested differently. This ensures that experienced players continue to face novel problems regardless of their total hours played.
+
+**5. Session length as a structural advantage over MOBAs**
+The genre emerged from a MOBA player base for whom 40–60 minute games were the norm. Auto battler sessions run 20–40 minutes, are asynchronous in some implementations (Super Auto Pets), and do not require permanent attention — the automated combat phase requires no input. This reduced time commitment and attention burden converted a large portion of the MOBA audience for whom full game sessions were impractical. Rock Paper Shotgun's Matt Cox noted the genre as "strategy without the APM tax" — the appeal to players who wanted strategic depth without the mechanical execution demands of real-time strategy.
+
+**6. Low mechanical floor, high strategic ceiling**
+The absence of real-time execution removes the dexterity barrier that locks out players from MOBAs and real-time strategy games. Any player can understand "buy units, combine three to upgrade, stack synergies" within a single session. The economic and scouting layers that create deep skill expression are not visible until the player has played enough to understand they exist — the complexity reveals itself progressively. This structure produces the broadest possible entry funnel and converts the largest fraction of new players to returning ones.
+
+**7. The meta as a community product**
+Auto battler communities produce and maintain tier lists, optimal economy timings, item priority guides, and synergy breakdowns that are more complex than those of most other strategy genres. Because the unit pool and synergy systems are large and constantly updated, this content never goes stale. New players rely on community resources; experienced players contribute to them. The community vocabulary ("fast 8," "loss streak," "rolldown," "BiS items") mirrors the build vocabulary of RPG and roguelite communities — it is social currency that signals mastery and drives the community conversation.
+
+**8. Seasonal resets as long-term engagement architecture**
+Teamfight Tactics, the genre's most commercially sustained implementation, structures its content around seasonal sets — complete refreshes of the unit and synergy pool approximately every four months. Each set launch functions as a new game release within the same client: established players re-experience the discovery phase, streamers produce "first impressions" content, and tier lists are rebuilt from scratch. This cadence has sustained TFT's player base through 16 sets as of December 2025, making seasonal rotation a proven long-term engagement model for the genre.
+
+**9. The "units don't have to be chess pieces" insight**
+Like the deck builder insight that "cards don't have to be cards," the auto battler genre has proven that its core loop — draft units from a shared pool, combine for upgrades, stack synergies, automate combat — is mechanically independent of its initial chess-piece presentation. *Hearthstone Battlegrounds* uses minions and a pub setting. *Super Auto Pets* uses animals. *The Bazaar* uses inventory items. Each entry creates a distinct aesthetic identity while delivering the same underlying experience: economic management, synergy construction, and the tension of shared scarcity. New entries that find a thematically fresh vessel for this loop consistently find audiences.
+
+**10. The challenge of balance at scale**
+The genre's primary design difficulty is identical to roguelites: balance rather than architecture. A unit pool of 50–60 units across 20–30 synergies produces an enormous combinatorial space; ensuring that all viable compositions remain relevant across a season is technically demanding. Dominant compositions ("S-tier comps") that trivialise the game are the genre's most persistent failure mode, and the competitive community identifies them within days of a patch. The genres best-managed implementations (TFT) use frequent small patches and transparent balance philosophies to address this without destabilising the meta faster than players can adapt.
+</details>
+
+### Player Reception and Market Signal
+
+Teamfight Tactics (Riot Games, 2019) is the genre's dominant commercial implementation and the clearest market signal. As a free-to-play mode within the League of Legends ecosystem — which already had approximately 150 million registered accounts at launch — TFT had an extraordinary initial distribution advantage. Within two weeks of its June 2019 launch it had reached 33 million players, with 1.72 billion total hours of gameplay logged. It remains active through Set 16 as of December 2025.
+
+**1. Scale, distribution, and the genre's commercial ceiling**
+TFT's 33 million player figure is the genre's commercial high-water mark, and it was achieved in large part because Riot launched it inside an existing product with an existing player base. The closest competitor on Steam, *Dota Underlords* (Valve, 2019), accumulated 90,968 total Steam reviews at 84% positive (English: Very Positive, 84% of 33,493) — substantial numbers for a free-to-play title, and a strong positive score, but a fraction of TFT's reach. The market signal: the genre's core loop has broad enough appeal to sustain tens of millions of players, but distribution context and brand familiarity determine the size of the addressable audience more than mechanical quality alone.
+
+<details>
+<summary style="font-style:italic;">Expand</summary>
+
+**2. Community tags as player-stated value signals**
+The most-applied community tags for Dota Underlords — Free to Play, **Strategy**, **Auto Battler**, Casual, **Multiplayer**, Chess, **Tactical**, Turn-Based Tactics, Turn-Based, Competitive, Fantasy, Board Game, **Card Game**, **Deckbuilding** — are notable for two reasons. First, the appearance of "Card Game" and "Deckbuilding" as top player-applied tags confirms that players map the genre's draft-and-combine loop onto the deck builder mental model; the genres share an underlying design grammar. Second, "Casual" and "Competitive" appearing as simultaneous tags mirrors Balatro's "Relaxing" and "Difficult" co-occurrence — evidence that the genre achieves the same dual-audience structure as the best roguelite deck builders: accessible surface, deep strategic interior.
+
+*Super Auto Pets* (Team Wood Games, 2021) reinforces this: 35,537 total Steam reviews, **91% positive** (English, Very Positive, 91% of 24,760), with top tags including Auto Battler, **Roguelike**, **Card Battler**, Asynchronous Multiplayer, Casual, Family Friendly, Minimalist — the most positive review profile among standalone auto battlers on Steam. Its "Roguelike" tag, applied by players without developer prompting, directly confirms the genre's perceived connection to roguelite design.
+
+**3. The genre's structural vulnerability: active development dependency**
+Unlike roguelites and deck builders — where a fixed game (Slay the Spire, Hades) can sustain long-tail engagement for years on a completed design — auto battlers depend on live service maintenance. A game that ceases receiving balance patches, seasonal content, or matchmaking investment rapidly declines. Dota Underlords provides the clearest evidence: its reviews shift from "Very Positive" at peak (all-time) to "Mostly Positive" in recent reviews (78% of 83) — a modest recent volume with a declining trend — reflecting reduced development activity after Valve moved focus away from the game. The genre's commercial model requires ongoing investment; it cannot be released and left. For a basketball-adjacent game drawing on auto battler mechanics, this has direct implications for resource planning.
+
+**4. Accessible presentation as a market expansion mechanism**
+*Super Auto Pets*' exceptional review score (91% positive) relative to more mechanically complex auto battlers reflects the same dynamic as Balatro versus Slay the Spire: the least intimidating presentation converts the broadest audience. Team Wood Games built a free-to-play auto battler with an emoji art style, no IP recognition requirement, no MOBA background assumed, and an asynchronous multiplayer mode that removed real-time pressure entirely. The "Family Friendly" and "Minimalist" community tags confirm that simplicity in presentation expands the player funnel without reducing the strategic depth that retains experienced players.
+
+**Sources:** Wikipedia — Teamfight Tactics (Set history, player count data, development timeline); Kotaku — "A Guide To Auto Chess, 2019's Most Popular New Game Genre" (Nathan Grayson, Jun 25 2019); Rock Paper Shotgun — "Spawn Point: What on earth is an auto battler?" (Matt Cox, Aug 1 2019); Steam product page — Dota Underlords (app/1046930, accessed Mar 2026); Steam product page — Super Auto Pets (app/1714040, accessed Mar 2026).
 </details>
 
 ## Basketball Video Games
@@ -602,7 +744,6 @@ The sequel (Colossal Order, 2023) launched with severe performance issues and a 
 **Sources:** Cities: Skylines — Steam product page (app/255710, accessed Feb 2026).
 </details>
 
-
 ## References
 
 | Resource | Summary |
@@ -622,3 +763,7 @@ The sequel (Colossal Order, 2023) launched with severe performance issues and a 
 | [Cities: Skylines — Steam product page](https://store.steampowered.com/app/255710/Cities_Skylines/) | 98,258 total English reviews, 93% positive. Metacritic 85. Developed by Colossal Order, published by Paradox Interactive, released Mar 2015. Top community tags: City Builder, Simulation, Building, Management, Strategy, Sandbox, Economy, Moddable, Resource Management, Replay Value, Real-Time with Pause, Great Soundtrack. Critical quotes on page: "The finest city builder in over a decade" (The Escapist, 10/10); "fills the increasingly noticeable void in the genre... the new gold standard of modern city-builders" (GameInformer, 8.8/10); "I wholeheartedly recommend this game" (Destructoid, 9/10). Still receiving 817 reviews/month at 92% positive as of Feb 2026 — eleven years post-launch — driven significantly by the mod ecosystem and Steam Workshop integration. |
 | [Crusader Kings III — Steam product page](https://store.steampowered.com/app/1158310/Crusader_Kings_III/) | 47,663 total English reviews, 90% positive. Metacritic 91. Developed and published by Paradox Development Studio, released Sep 2020. Top community tags: Strategy, Grand Strategy, RPG, Character Customization, Life Sim, Choices Matter, Sandbox, Moddable, Political. Still receiving 707 reviews/month at 88% positive as of Feb 2026 — strong long-tail retention for a five-year-old strategy title. The co-occurrence of RPG, Character Customization, Life Sim, and Choices Matter as top player-applied tags confirms that players experience it as an RPG despite its strategy genre classification. |
 | [Sid Meier's Civilization VI — Steam product page](https://store.steampowered.com/app/289070/Sid_Meiers_Civilization_VI/) | 105,068 total English reviews, 84% positive. Metacritic 88. Developed by Firaxis Games, published by 2K, released Oct 2016. Top community tags: Strategy, Turn-Based Strategy, Historical, Grand Strategy, City Builder, 4X, Management, Building, Moddable, Great Soundtrack. One of the highest-review-volume strategy titles on Steam; the City Builder tag applied by players confirms meaningful crossover between the 4X and city building audiences. |
+| [Dota Underlords — Steam product page](https://store.steampowered.com/app/1046930/Dota_Underlords/) | 90,968 total reviews, 84% positive (English: Very Positive, 84% of 33,493). Recent reviews: Mostly Positive (78% of 83 reviews as of Mar 2026). Developed and published by Valve, released Jun 20 2019. Free to Play. Top community tags: Free to Play, Strategy, Auto Battler, Casual, Multiplayer, Chess, Tactical, Turn-Based Tactics, Turn-Based, Competitive, Fantasy, Board Game, Card Game, Deckbuilding. The simultaneous player-application of "Card Game" and "Deckbuilding" tags confirms that the genre's draft-and-synergy loop maps directly onto the deck builder mental model in players' perception. |
+| [Super Auto Pets — Steam product page](https://store.steampowered.com/app/1714040/Super_Auto_Pets/) | 35,537 total reviews, 91% positive (English: Very Positive, 91% of 24,760). Recent reviews: Very Positive (86% of 167 as of Mar 2026). Developed and published by Team Wood Games, released Sep 24 2021. Free to Play. Top community tags: Auto Battler, Free to Play, Strategy, Multiplayer, Cute, PvP, Asynchronous Multiplayer, 2D, Casual, Card Battler, Colorful, Family Friendly, Minimalist, Roguelike, Deckbuilding. The "Roguelike" tag applied by players without developer prompting confirms the perceived design connection between auto battlers and roguelite design. The highest positive-review-score of any standalone auto battler on Steam. |
+| [A Guide To Auto Chess, 2019's Most Popular New Game Genre — Kotaku](https://kotaku.com/a-guide-to-auto-chess-2019-s-most-popular-new-game-gen-1835820155) | Nathan Grayson, Jun 25 2019. The first major English-language explainer for the genre at the height of Dota Auto Chess's growth. Describes the core appeal as "gambling without real money" — the randomised shop loop as a slot machine mechanic bounded by strategic skill. Key observations: the genre's low mechanical floor (no APM requirement), the economy as the primary differentiator between experienced and inexperienced players, the scarcity pressure of the shared unit pool, and the 20–40 minute session length as a structural advantage over MOBAs. |
+| [Spawn Point: What on earth is an auto battler? — Rock Paper Shotgun](https://www.rockpapershotgun.com/2019/08/01/what-is-an-auto-battler/) | Matt Cox, Aug 1 2019. An early genre overview describing the auto battler experience as "slotting together a puzzle box of your own devising." Identifies the genre's appeal as strategy without the execution demands of real-time strategy games — accessible to players for whom MOBA mechanical requirements are a barrier. Characterises the learning curve as initially overwhelming but then revealing itself as a decision tree, not a reflex test. |
