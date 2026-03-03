@@ -45,16 +45,6 @@ export default defineConfig({
           href: "https://github.com/fea-game/hoop",
         },
       ],
-      sidebar: [
-        {
-          label: "Odyssey",
-          autogenerate: { directory: "odyssey" },
-        },
-        {
-          label: "Fantasy",
-          autogenerate: { directory: "fantasy" },
-        },
-      ],
     }),
   ],
 });
