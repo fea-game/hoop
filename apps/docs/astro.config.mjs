@@ -28,6 +28,12 @@ export default defineConfig({
       alias: {
         "@charts": resolve(__dirname, "src/charts"),
       },
+      preserveSymlinks: true,
+    },
+    server: {
+      fs: {
+        allow: [resolve(__dirname, "../../docs")],
+      },
     },
   },
   markdown: {
