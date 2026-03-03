@@ -4,10 +4,10 @@ Game design and research docs site built with Astro + Starlight.
 
 ## Project structure
 
-- `docs/` — Astro/Starlight site (`npm run dev` in `docs/`)
-- `odyssey/docs/` — source-of-truth authoring files (mirrored into `docs/src/content/docs/odyssey/`)
-- `fantasy/docs/` — fantasy league docs (mirrored into `docs/src/content/docs/fantasy/`)
-- `docs/src/charts/` — static SVG chart components (Astro, D3, server-side only)
+- `apps/docs/` — Astro/Starlight site (`npm run dev` in `apps/docs/`)
+- `odyssey/docs/` — source-of-truth authoring files (mirrored into `apps/docs/src/content/docs/odyssey/`)
+- `fantasy/docs/` — fantasy league docs (mirrored into `apps/docs/src/content/docs/fantasy/`)
+- `apps/docs/src/charts/` — static SVG chart components (Astro, D3, server-side only)
 
 ## Chart development
 

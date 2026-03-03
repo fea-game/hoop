@@ -5,7 +5,7 @@ export
 
 docs:
 	-lsof -ti :$(DOCS_PORT) | xargs kill -9 2>/dev/null; sleep 1
-	cd docs && npm run dev &
+	cd apps/docs && npm run dev &
 	until curl -s http://localhost:$(DOCS_PORT) > /dev/null 2>&1; do sleep 1; done
 	caffeinate -s tailscale serve --https=$(DOCS_PORT) http://localhost:$(DOCS_PORT)
 

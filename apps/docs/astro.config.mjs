@@ -10,7 +10,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-config({ path: resolve(process.cwd(), "../.env") });
+config({ path: resolve(process.cwd(), "../../.env") });
 
 const isProd = process.env.NODE_ENV === "production";
 const tailscaleHostname = process.env.TAILSCALE_HOSTNAME;
