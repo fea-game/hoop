@@ -32,7 +32,7 @@ export default defineConfig({
     },
     server: {
       fs: {
-        allow: [resolve(__dirname, "../../docs")],
+        allow: [__dirname, resolve(__dirname, "../../docs")],
       },
     },
   },
