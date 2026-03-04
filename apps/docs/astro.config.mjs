@@ -2,6 +2,12 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightThemeGalaxy from "starlight-theme-galaxy";
+import starlightCatppuccin from "@catppuccin/starlight";
+import { ion } from "starlight-ion-theme";
+import starlightThemeBlack from "starlight-theme-black";
+import gruvbox from "starlight-theme-gruvbox";
+import pagePlugin from "@pelagornis/page";
+import starlightThemeSix from "@six-tech/starlight-theme-six";
 import mermaid from "astro-mermaid";
 import remarkRewriteMdLinks from "./remark-rewrite-md-links.mjs";
 import { config } from "dotenv";
@@ -42,7 +48,7 @@ export default defineConfig({
   integrations: [
     mermaid({ autoTheme: true }),
     starlight({
-      plugins: [starlightThemeGalaxy()],
+      plugins: [starlightThemeSix({})],
       title: "@fea-game/Hoop",
       social: [
         {

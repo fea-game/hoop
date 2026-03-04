@@ -1,31 +1,18 @@
-# Chart Development — Agent Instructions
+# Chart conventions
 
-Rules and recipes for building chart components in `docs/src/charts/`. Follow these exactly; all patterns have been validated against the live site.
+Hard constraints, layout recipes, theming patterns, anti-patterns, and the pre-ship checklist for Astro + D3 static SVG chart components in a Starlight docs site.
+
+---
 
 ## Choosing a chart type
 
-Before creating a new component, consult `docs/src/charts/chart-decision-tree.png` (From Data to Viz — Yan Holtz & Conor Healy). It maps data shape → recommended chart type in three steps:
+Before creating a new component, consult `references/chart-decision-tree.md` (From Data to Viz — Yan Holtz & Conor Healy). It maps data shape → recommended chart type in three steps:
 
 1. Identify the **data family**: Categoric · Categoric+Numeric · Numeric · Relational · Map · Time Series.
 2. Follow the branch for your specific shape (e.g. "one numeric value per group").
 3. Pick the chart that matches the **intent** (Distribution · Correlation · Ranking · Part-of-a-whole · Evolution · Maps · Flow).
 
-Quick lookup for the scenarios that arise most often in this project:
-
-| Scenario | Recommended type | Existing component |
-|---|---|---|
-| Numeric value for every (row, col) cell pair | Heatmap | `Heatmap.astro` |
-| Symmetric pairwise scores between N items | Matrix / Bubble matrix | `PairMatrix.astro` |
-| Multiple quantitative axes for M series | Radar / Spider | `SpiderChart.astro` |
-| Similarity distances between N items as a 2-D plot | MDS Bubble plot | — |
-| Many categories × many series, score per (category, series) — tile layout | Grid of mini spider petals | `GenreGrid.astro` |
-| Many categories × many series, score per (category, series) — territory layout | Voronoi territory chart | `GenreVoronoi.astro` |
-| One series across N quality axes — filled area, placed inside an HTML grid | Single-genre spider (filled polygon) | `GenreSpider.astro` |
-| Many categories × many qualities — distribution/score per (row, quality) as radial violin | Radial violin | `RadialViolin.astro` |
-| Proportions of a whole (single series) | Donut / Pie / Treemap | — |
-| One numeric + one category, ranked | Lollipop / Bar | — |
-| Two continuous variables | Scatter / Bubble | — |
-| One continuous variable over time | Line / Area | — |
+---
 
 ## Hard constraints
 
@@ -35,10 +22,12 @@ Quick lookup for the scenarios that arise most often in this project:
 - **No default prop data.** Components are generic. Domain data lives in the MDX file as JSX props.
 - **`@charts/` import alias.** Always. Never relative paths — they break because Vite resolves MDX from the odyssey source path.
 
+---
+
 ## File structure
 
 ```
-docs/src/charts/MyChart.astro
+src/charts/MyChart.astro
 ```
 
 Import in MDX:
@@ -46,7 +35,30 @@ Import in MDX:
 import MyChart from '@charts/MyChart.astro';
 ```
 
-Alias is defined in `docs/astro.config.mjs` (Vite) and `docs/tsconfig.json` (TS paths).
+Alias is defined in `astro.config.mjs` (Vite `resolve.alias`) and `tsconfig.json` (`compilerOptions.paths`).
+
+---
+
+## SVG boilerplate
+
+```astro
+---
+// all computation here
+---
+
+<figure class="chart-figure">
+  <svg viewBox={`0 0 ${VW} ${VH}`} role="img" class="chart-svg">
+    <!-- content -->
+  </svg>
+</figure>
+
+<style>
+  .chart-figure { margin: 1.5rem 0; }
+  .chart-svg { display: block; width: 100%; height: auto; }
+</style>
+```
+
+---
 
 ## Layout recipe
 
@@ -74,7 +86,7 @@ const VH = TOP  + N * CELL + 24;   // 24px bottom padding
 **Column header base Y:**
 ```ts
 const baseY = rowY(0) - R_MAX - GAP - 11;
-// -11 is empirical; it produces visual parity with the row-label horizontal gap
+// -11 is empirical; produces visual parity with the row-label horizontal gap
 ```
 
 **Multi-line label vertical centring (row labels):**
@@ -84,9 +96,12 @@ const y = cy - totalH / 2 + lineIndex * LINE_H + 4;
 // +4 corrects SVG baseline vs. visual cap-height centre
 ```
 
+---
+
 ## Theming recipe
 
 ### Selector rule
+
 Always pair both selectors — Starlight uses either depending on context:
 
 ```css
@@ -138,40 +153,49 @@ Always pair both selectors — Starlight uses either depending on context:
 ### Axis / header labels
 
 ```css
-.pm-label {
+.my-label {
   font-family: system-ui, sans-serif;
   fill: oklch(30% 0 0);
   opacity: 0.8;
 }
 
-:global([data-theme="dark"]) .pm-label,
-:global(.sl-theme-dark) .pm-label { fill: rgba(255, 255, 255, 0.75); }
+:global([data-theme="dark"]) .my-label,
+:global(.sl-theme-dark) .my-label { fill: rgba(255, 255, 255, 0.75); }
 ```
 
-## SVG boilerplate
+### Default colour palette
 
-```astro
----
-// all computation here
----
+Use this palette when the user does not supply a `colors` prop. It covers 16 named hues, each with a dark-mode and light-mode variant:
 
-<figure class="chart-figure">
-  <svg viewBox={`0 0 ${VW} ${VH}`} role="img" class="chart-svg">
-    <!-- content -->
-  </svg>
-</figure>
-
-<style>
-  .chart-figure { margin: 1.5rem 0; }
-  .chart-svg { display: block; width: 100%; height: auto; }
-</style>
+```ts
+export const colors = [
+  { dark: '#f07070', light: '#c73030' }, // red
+  { dark: '#5dd4c8', light: '#1a9e94' }, // teal
+  { dark: '#f5c05a', light: '#c9921a' }, // amber
+  { dark: '#f07ab0', light: '#c73a7a' }, // pink
+  { dark: '#70d490', light: '#2a9e50' }, // green
+  { dark: '#a078e8', light: '#5828b0' }, // indigo
+  { dark: '#c8f060', light: '#7aaa10' }, // lime
+  { dark: '#ffa07a', light: '#c85a20' }, // orange
+  { dark: '#60d0f0', light: '#0878a8' }, // sky
+  { dark: '#e08888', light: '#902020' }, // crimson
+  { dark: '#f8e060', light: '#a87e00' }, // yellow
+  { dark: '#b898f0', light: '#6c3fd4' }, // violet
+  { dark: '#a8e8b8', light: '#1e7840' }, // mint
+  { dark: '#f8c8a0', light: '#b85a10' }, // sienna
+  { dark: '#88c8f8', light: '#1050a0' }, // cobalt
+  { dark: '#f0d0f8', light: '#9a3ab8' }, // lavender
+];
 ```
+
+Place this constant in the MDX file (or a shared `src/data/` module) and pass it as the `colors` prop. Components cycle through the array by index — if a chart has more series than palette entries, wrap with `colors[i % colors.length]`.
+
+---
 
 ## HTML grid + SVG chart pattern
 
-When a set of small charts belongs together (e.g. one spider per genre), the grid and the legend **live in the MDX document**, not inside the chart component. This keeps the component single-purpose and reusable.
+When a set of small charts belongs together, the grid and legend live in the MDX document, not inside the chart component. The component renders only a bare `<svg>` — no `<figure>` wrapper, no legend.
 
-Pattern:
 ```mdx
 <div class="my-grid">
   {items.map((item, i) => (
@@ -194,26 +218,27 @@ Pattern:
     border-radius: 8px;
     padding: 6px;
   }
-  /* theming, legend, etc. */
 `}</style>
 ```
 
-The chart component itself renders only a bare `<svg>` (no `<figure>` wrapper, no legend). The MDX owns layout. CSS custom properties (`--swatch-dark`, `--swatch-light`) are used for legend swatches via `style=` on individual HTML elements.
+Use CSS custom properties (`--swatch-dark`, `--swatch-light`) for legend swatches via `style=` on HTML elements.
+
+---
 
 ## RadialViolin — design patterns
 
 `RadialViolin.astro` renders one continuous closed SVG path per category row, radiating as a ray from the centre.
 
-### Key design decisions (validated in v2):
+Key design decisions (validated in v2):
 
-- **One path per ray, not one path per bump.** `violinPath(row, θ)` samples the full radial extent (`R_INNER - BUMP_H2` to `R_OUTER + BUMP_H2`), traces the right side outward then left side inward, closes with `Z`. Produces a single silhouette, not disconnected blobs.
+- **One path per ray, not one path per bump.** `violinPath(row, θ)` samples the full radial extent, traces the right side outward then left side inward, closes with `Z`.
 - **Width profile via cosine lobes.** `widthAt(row, r)` sums cosine-shaped lobes centred at each `ringR(j)` with half-height `BUMP_H2 = RING_PITCH * 0.48`. The 4% gap between adjacent bumps creates natural waist pinches.
-- **Uniform bump height, variable width.** All bumps have the same radial extent (`BUMP_H2`). Only the perpendicular half-width `bumpW2(v)` varies with score, keeping ring radii comparable across rays.
-- **12 steps per bump.** `STEPS_PER_BUMP = 12` → `N_RINGS * 12` total segments per side → ~361 `L` commands per path. Dense enough to look smooth without Bézier curves.
-- **Ring label placement.** Labels sit at angle `−π/2 + π/N_RAYS` (halfway between ray 0 and ray 1) to avoid colliding with violin shapes.
+- **Uniform bump height, variable width.** Only the perpendicular half-width `bumpW2(v)` varies with score, keeping ring radii comparable across rays.
+- **12 steps per bump.** `STEPS_PER_BUMP = 12` → dense enough to look smooth without Bézier curves.
+- **Ring label placement.** Labels sit at angle `−π/2 + π/N_RAYS` (halfway between ray 0 and ray 1) to avoid collisions.
 - **Props share the `Row` shape with `Heatmap`.** `rows: { label: string; values: [string, number][] }[]` and `colors: { light: string; dark: string }[]` can be passed directly from the same MDX variables.
 
-### Layout constants (600×600 viewBox):
+Layout constants (600×600 viewBox):
 
 | Constant | Value | Role |
 |---|---|---|
@@ -222,17 +247,21 @@ The chart component itself renders only a bare `<svg>` (no `<figure>` wrapper, n
 | `R_OUTER` | 220 | Radius of outermost ring centre |
 | `R_LABEL` | 240 | Ray label placement radius |
 | `BUMP_H2` | `RING_PITCH * 0.48` | Cosine lobe half-height along ray |
-| `BUMP_W2_MAX` | `min(R_INNER * sin(π/N_RAYS) * 0.78, 30)` | Max perp half-width (prevents overlap at inner ring) |
+| `BUMP_W2_MAX` | `min(R_INNER * sin(π/N_RAYS) * 0.78, 30)` | Max perp half-width |
 | `BUMP_W2_MIN` | 2 | Min perp half-width (keeps value=1 visible) |
+
+---
 
 ## Voronoi half-plane clipping — sign convention
 
-- `clipPolyByHalfPlane` sign formula: `sign(px,py) = (px−ax)*(−dy) + (py−ay)*dx`, where `(ax,ay)→(bx,by)` is the directed edge and `(dx,dy) = (bx−ax, by−ay)`. Points with `sign ≥ 0` are **kept**.
-- Clip to `x ≥ xMin`: direct the edge **upward** at xMin → `(xMin, canvasH, xMin, 0)`.
+- `clipPolyByHalfPlane` sign formula: `sign(px,py) = (px−ax)*(−dy) + (py−ay)*dx`, where `(ax,ay)→(bx,by)` is the directed edge. Points with `sign ≥ 0` are **kept**.
+- Clip to `x ≥ xMin`: direct the edge **upward** → `(xMin, canvasH, xMin, 0)`.
 - Clip to `x ≤ xMax`: direct the edge **downward** → `(xMax, 0, xMax, canvasH)`.
 - Clip to `y ≥ yMin`: direct the edge **rightward** → `(0, yMin, canvasH, yMin)`.
-- **Anti-pattern**: using `y=0` and `y=1` (or any near-identical y values) for the clip edge makes `dy ≈ 0` and the sign formula degenerate — all polygons collapse. Always use the full canvas height for the second coordinate.
-- `computeVoronoiCell` bisector: the "keep this side" check must use the **same** sign formula as `clipPolyByHalfPlane`. Using a different cross-product form produced invisible fills; switching to the matching formula fixed it.
+- **Anti-pattern**: using `y=0` and `y=1` for the clip edge makes `dy ≈ 0` and the sign formula degenerate — all polygons collapse. Always use the full canvas height.
+- `computeVoronoiCell` bisector must use the **same** sign formula as `clipPolyByHalfPlane`.
+
+---
 
 ## Anti-patterns — do not retry
 
@@ -243,7 +272,9 @@ The chart component itself renders only a bare `<svg>` (no `<figure>` wrapper, n
 | `overflow: visible` on SVG to let labels paint outside | Browser still allocates layout space; causes overflow |
 | `fill="red"` presentation attribute on themed elements | CSS cannot reliably override SVG presentation attributes |
 | Relative import path in MDX (`../../charts/Foo.astro`) | Vite resolves MDX from odyssey source path; path breaks |
-| Default prop data in the component | Couples domain data to the component; violates single-source-of-truth |
+| Default prop data in the component | Couples domain data to the component |
+
+---
 
 ## Pre-ship checklist
 
