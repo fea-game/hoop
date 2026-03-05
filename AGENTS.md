@@ -11,4 +11,4 @@ Game design and research docs site built with Astro + Starlight.
 
 ## Chart development
 
-When working on files in `docs/src/charts/` or adding charts to MDX files, load the `astro-charts` skill.
+When working on files in `docs/src/charts/` or adding charts to MDX files, load the `astro-starlight-charts` skill.

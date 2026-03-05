@@ -209,21 +209,10 @@ const genrePoints = projections.map(p => {
   return { ...p, x, y, r };
 });
 
-// ── Legend layout ─────────────────────────────────────────────────────────────
-
-const N_ROWS      = rows.length;
-const LEGEND_COLS = Math.min(N_ROWS, 4);
-const LEGEND_COL_W = Math.floor(SIZE / LEGEND_COLS);
-const LEGEND_ROW_H = 20;
-const LEGEND_ROWS  = Math.ceil(N_ROWS / LEGEND_COLS);
-const LEGEND_PAD   = 8;
-const LEGEND_LEFT  = 16;
-const LEGEND_H     = LEGEND_PAD + LEGEND_ROWS * LEGEND_ROW_H + R_DOT;
-
 // ── ViewBox ───────────────────────────────────────────────────────────────────
 
 const VW = SIZE;
-const VH = PAD_TOP + PLOT_H + PAD_BOT + LEGEND_H;
+const VH = PAD_TOP + PLOT_H + PAD_BOT;
 
 // ── Axis label positions ──────────────────────────────────────────────────────
 
@@ -332,40 +321,11 @@ const AX_BOT   = PAD_TOP + PLOT_H;
         dominant-baseline="auto"
         font-size="11" font-weight="600" font-family="system-ui, sans-serif"
         class="pca-genre-label"
+        style={`--pca-label-light:${pt.colorLight};--pca-label-dark:${pt.colorDark}`}
       >
         {pt.label}
       </text>
     ))}
-
-    <!-- ── Legend ─────────────────────────────────────────────────── -->
-    {rows.map((row, i) => {
-      const col  = i % LEGEND_COLS;
-      const lrow = Math.floor(i / LEGEND_COLS);
-      const lx   = LEGEND_LEFT + col * LEGEND_COL_W;
-      const ly   = PAD_TOP + PLOT_H + PAD_BOT + LEGEND_PAD + lrow * LEGEND_ROW_H;
-      const dl   = colors[i % colors.length].light;
-      const dd   = colors[i % colors.length].dark;
-      return (
-        <>
-          <circle
-            cx={lx + R_DOT}
-            cy={(ly + R_DOT).toFixed(1)}
-            r={R_DOT}
-            style={`--pca-fill-light:${dl};--pca-fill-dark:${dd}`}
-            class="pca-dot"
-          />
-          <text
-            x={lx + R_DOT * 2 + 5}
-            y={ly + R_DOT}
-            dominant-baseline="middle"
-            font-size="12" font-weight="600" font-family="system-ui, sans-serif"
-            class="pca-legend-label"
-          >
-            {row.label}
-          </text>
-        </>
-      );
-    })}
 
   </svg>
 </figure>
@@ -416,15 +376,8 @@ const AX_BOT   = PAD_TOP + PLOT_H;
 
   /* ── Genre labels above bubbles ───────────────────────────────────────── */
   .pca-genre-label {
-    fill: oklch(25% 0 0);
+    fill: var(--pca-label-light, oklch(25% 0 0));
   }
   :global([data-theme="dark"]) .pca-genre-label,
-  :global(.sl-theme-dark) .pca-genre-label { fill: rgba(255,255,255,0.82); }
-
-  /* ── Legend labels ────────────────────────────────────────────────────── */
-  .pca-legend-label {
-    fill: oklch(25% 0 0);
-  }
-  :global([data-theme="dark"]) .pca-legend-label,
-  :global(.sl-theme-dark) .pca-legend-label { fill: rgba(255,255,255,0.82); }
+  :global(.sl-theme-dark) .pca-genre-label { fill: var(--pca-label-dark, rgba(255,255,255,0.82)); }
 </style>
