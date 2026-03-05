@@ -50,6 +50,16 @@ export default defineConfig({
     starlight({
       plugins: [starlightThemeSix({})],
       title: "@fea-game/Hoop",
+      favicon: "/icons/icon-16x16.svg",
+      logo: { dark: "./src/assets/logo-dark.svg", light: "./src/assets/logo-light.svg" },
+      customCss: ["./src/styles/theme.css"],
+      head: [
+        { tag: "link", attrs: { rel: "manifest", href: "/site.webmanifest" } },
+        { tag: "meta", attrs: { name: "theme-color", content: "#26c6da" } },
+        { tag: "link", attrs: { rel: "apple-touch-icon", sizes: "180x180", href: "/icons/icon-180x180.svg" } },
+        { tag: "link", attrs: { rel: "icon", type: "image/svg+xml", sizes: "32x32", href: "/icons/icon-32x32.svg" } },
+        { tag: "link", attrs: { rel: "icon", type: "image/svg+xml", sizes: "16x16", href: "/icons/icon-16x16.svg" } },
+      ],
       social: [
         {
           icon: "github",
