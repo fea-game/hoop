@@ -1,12 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import starlightThemeGalaxy from "starlight-theme-galaxy";
-import starlightCatppuccin from "@catppuccin/starlight";
-import { ion } from "starlight-ion-theme";
-import starlightThemeBlack from "starlight-theme-black";
-import gruvbox from "starlight-theme-gruvbox";
-import pagePlugin from "@pelagornis/page";
 import starlightThemeSix from "@six-tech/starlight-theme-six";
 import mermaid from "astro-mermaid";
 import remarkRewriteMdLinks from "./remark-rewrite-md-links.mjs";
@@ -51,14 +45,40 @@ export default defineConfig({
       plugins: [starlightThemeSix({})],
       title: "@fea-game/Hoop",
       favicon: "/icons/icon-16x16.svg",
-      logo: { dark: "./src/assets/logo-dark.svg", light: "./src/assets/logo-light.svg" },
+      logo: {
+        dark: "./src/assets/logo-dark.svg",
+        light: "./src/assets/logo-light.svg",
+      },
       customCss: ["./src/styles/theme.css"],
       head: [
         { tag: "link", attrs: { rel: "manifest", href: "/site.webmanifest" } },
         { tag: "meta", attrs: { name: "theme-color", content: "#26c6da" } },
-        { tag: "link", attrs: { rel: "apple-touch-icon", sizes: "180x180", href: "/icons/icon-180x180.svg" } },
-        { tag: "link", attrs: { rel: "icon", type: "image/svg+xml", sizes: "32x32", href: "/icons/icon-32x32.svg" } },
-        { tag: "link", attrs: { rel: "icon", type: "image/svg+xml", sizes: "16x16", href: "/icons/icon-16x16.svg" } },
+        {
+          tag: "link",
+          attrs: {
+            rel: "apple-touch-icon",
+            sizes: "180x180",
+            href: "/icons/icon-180x180.svg",
+          },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "icon",
+            type: "image/svg+xml",
+            sizes: "32x32",
+            href: "/icons/icon-32x32.svg",
+          },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "icon",
+            type: "image/svg+xml",
+            sizes: "16x16",
+            href: "/icons/icon-16x16.svg",
+          },
+        },
       ],
       social: [
         {
