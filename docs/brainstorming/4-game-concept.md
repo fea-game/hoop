@@ -275,6 +275,72 @@ The corner shooter receives the largest score despite not initiating the play. T
 
 Derived from archetype, tags, and attributes. Cached as a value on the player card. Reactively recalculated when any relevant value changes (development card applied, tag added or removed, permanent attribute change). Stable mid-game — Heat and fatigue handle in-game variation on top of the stable fit base.
 
+#### Defensive simulation
+
+The defensive side of the action chain uses a **mirror model** — the same weighted scoring function pattern as the offensive possession generator, applied to defensive response options. The defense is not a passive resistance layer or a scheme lookup table; it is an active decision-making system evaluated per action node.
+
+##### Defensive response vocabulary
+
+| Response | Situation | V1 |
+|---|---|---|
+| `stay-with-ball-handler` | Ball handler action — primary defender fights through or around screen | Yes |
+| `switch` | Ball handler action — defenders trade assignments | Yes |
+| `hedge-and-recover` | Ball handler action — help defender steps up, recovers back | Yes |
+| `hard-hedge` | Ball handler action — help defender fully commits, leaves man open | Yes |
+| `drop` | Ball handler action — help defender sags to protect the paint | Yes |
+| `double-team` | Ball handler action — secondary defender traps ball handler | Yes |
+| `deny` | Perimeter / off-ball — cuts off passing lane aggressively | Yes |
+| `sag-off` | Perimeter / off-ball — gives space, dares player to shoot | Yes |
+| `help-and-rotate` | Perimeter / off-ball — off-ball defender covers for beaten teammate | Yes |
+| `get-back` | Transition — prioritise retreating to half-court | Yes |
+| `press` | Transition — full-court pressure | Later |
+| `face-guard` | Perimeter — extreme denial, follows player everywhere | Later |
+
+##### Defensive scoring function
+
+```
+option_score(defensive_response) =
+  scheme_weight(defensive_response)
+  + defender_fit(primary_defender, offensive_action)
+  + scouting_knowledge(primary_defender, ball_handler)
+  + heat_modifier(primary_defender)
+  - fatigue_penalty(primary_defender)
+  + help_defender_availability(defensive_response)
+```
+
+- **`scheme_weight`** — the active defensive scheme pre-weights responses. A `protect-the-paint` scheme weights `drop` and `help-and-rotate` heavily; a `pressure` scheme weights `hard-hedge` and `deny`.
+- **`defender_fit`** — mirrors `player_fit` on offense. Derived from archetype, tags, and attributes relative to the specific response. A `perimeter-stopper` tag boosts `stay-with-ball-handler` and `deny`; a `help-defender` tag boosts `hedge-and-recover` and `help-and-rotate`.
+- **`scouting_knowledge`** — how well the defender and team know the ball handler's tendencies. High scouting knowledge boosts the score of the correct response for that ball handler (well-scouted shooter → `deny` weighted higher; well-scouted non-shooter → `sag-off` weighted higher). Unknown opponents receive a flat contribution — no boost, no penalty.
+- **`heat_modifier`** — same as offense. A cold defender is less likely to select the optimal response.
+- **`fatigue_penalty`** — same as offense. A fatigued defender defaults toward lower-effort responses (`sag-off`, `drop`).
+- **`help_defender_availability`** — responses requiring a second defender (`hard-hedge`, `double-team`, `help-and-rotate`) are penalised if the nearest help defender is fatigued, in foul trouble, or already committed elsewhere. Determined by the proximity function (see below).
+
+##### Proximity function
+
+Proximity decouples defensive availability from rigid 1-on-1 matchup assignment. It works for both man-to-man and zone defense, where defenders guard areas rather than specific players. It is the input to `help_defender_availability` and any other system that needs to know whether a defender can realistically reach an action.
+
+```
+proximity(
+  defender,                    // defending player (position, attributes, tags)
+  offensive_actor,             // player performing the offensive action
+  defensive_scheme,            // man-to-man vs. zone; zone type if applicable
+  primary_assignment,          // who the defender is nominally guarding (man) or what area (zone)
+  ball_position,               // where the ball currently is on the floor
+  previous_action,             // what the defender just did (committed to a hedge, rotated, etc.)
+  fatigue                      // fatigued defenders recover position more slowly
+) → proximity_score            // 0.0 (unreachable) to 1.0 (right there)
+```
+
+- **`primary_assignment`** — in man-to-man, interpreted as a player reference; proximity to the ball handler is high if that is your man. In zone, interpreted as a floor area; proximity is determined by whether the offensive action is happening in your zone region.
+- **`defensive_scheme`** — governs how `primary_assignment` is interpreted. Man schemes use player-to-player mapping; zone schemes use area-to-player mapping.
+- **`ball_position`** — help defense availability depends on where the ball is relative to the defender's assignment. A wing defender is proximate to a wing action, far from a post action.
+- **`previous_action`** — the most consequential term for sequencing. A defender who just executed `hard-hedge` is out of position; a defender who just rotated is committed elsewhere. Prevents the defense from teleporting between responses.
+- **`fatigue`** — fatigued defenders recover position more slowly, reducing proximity on subsequent actions in the chain.
+
+**V1 implementation:** A lookup table — `primary_assignment × ball_position → base_proximity_score`, with a flat penalty if `previous_action` was a committing response (`hard-hedge`, `double-team`), and a fatigue scalar. No geometry, no continuous space.
+
+**Later:** A floor-position model with spatial coordinates per scheme, enabling realistic zone coverage gaps and rotation chains.
+
 #### Terminal events
 
 | Event | V1 | Later |
@@ -565,6 +631,6 @@ Identity Cards replace each other as the coach evolves — the library of 20 all
 | Multiplayer or single-player only | Document 2 notes single-player focus; no decision required now but should be explicitly deferred rather than assumed. |
 | Platforms | Not addressed. Casual session length and card visual language suggest mobile viability alongside desktop. |
 | Attribute and tag interaction model | How attributes are defined, scaled, and combined with tags to derive player fit values. Deferred to its own design session. |
-| Defensive simulation | The defensive side of the action chain decision nodes. Currently a scheme-lookup stub; needs its own weighted evaluation model mirroring the offensive side. |
+| Defensive simulation | Resolved. Mirror model with weighted scoring function, defensive response vocabulary, and proximity function. See §4.2 — Defensive simulation. |
 | Fatigue model | How fatigue accumulates per action and per game, and how it feeds into the possession generator and time cost function. |
 | Play type action budgets | Base shot clock budget per play type (e.g. transition vs. half-court set). Interface supports variable budgets from day one; calibration deferred. |
