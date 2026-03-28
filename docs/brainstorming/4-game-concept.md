@@ -271,6 +271,55 @@ Gravity is tag-driven. Opponent scouting knowledge modulates gravity magnitude �
 
 The corner shooter receives the largest score despite not initiating the play. Their Heat compounds accordingly.
 
+#### Fatigue model
+
+Fatigue is a cumulative in-game value on each player's state, starting at 0 and climbing. It feeds directly into the possession generator (`fatigue_penalty`), the time cost function, and the proximity function as a scalar — no separate translation needed.
+
+##### Accumulation function
+
+```
+fatigue_delta(
+  player,                  // attributes, tags (e.g. `high-motor`, `injury-prone`)
+  action,                  // what the player just did
+  current_fatigue,         // current cumulative fatigue score
+  minutes_played           // total floor time this game in seconds
+) → fatigue_delta          // added to cumulative fatigue score
+```
+
+Action intensity drives accumulation independently of role — a hard-hedge or a drive to the rim costs more fatigue than a catch-and-shoot regardless of who initiated the possession. `current_fatigue` allows for diminishing recovery and steepening accumulation as the game progresses. `minutes_played` provides a continuous baseline drain on top of action costs.
+
+**V1 implementation:** Fixed delta per action type (high-intensity vs. low-intensity buckets), plus a flat per-second minutes drain. `current_fatigue` used as a scalar cap only. Tag interactions (`high-motor`, `injury-prone`, `iron-man`) deferred to later.
+
+**Later:** Per-action intensity weights differentiated at the individual action level; full tag interaction model.
+
+##### Recovery
+
+Recovery is discrete — calculated at possession boundaries for benched players, with a larger batch at quarter breaks. No continuous background tick.
+
+| Recovery event | Delta |
+|---|---|
+| Possession boundary (benched) | Flat recovery per possession |
+| Quarter break (benched) | Larger flat batch |
+| Quarter break (on floor) | Smaller flat batch |
+| Timeout | Flat recovery delta to all five players currently on the floor |
+
+Recovery rate is modulated by `minutes_played` — a player who has played heavy minutes recovers more slowly even while resting. Accumulated fatigue has a stubborn floor that does not fully clear mid-game.
+
+**V1:** Flat rates for all recovery events. Minutes-played modulation and tag interactions later.
+
+##### Display and thresholds
+
+Fatigue is displayed as a continuous bar on each player card (bleeds into the card border — see §4.4). The bar is a direct readout of the cumulative fatigue score, not a discrete state system.
+
+Two thresholds sit on top of the continuous bar:
+
+| Threshold | Level | Effect |
+|---|---|---|
+| **Warning** | ~60% fatigue | Bar changes colour. Crisis Engine begins monitoring this player for injury risk. No hard consequence yet — coaching signal only. |
+| **Critical** | ~85% fatigue | Injury risk spike activates. Performance penalties in the scoring functions are steepest here. Crisis Engine can fire an injury/health scare window if a contact action occurs (see §4.6 crisis trigger table). |
+
+**V1:** Two thresholds, continuous bar, colour change at warning. Injury risk at critical is already stubbed in the crisis trigger list.
+
 #### Player fit
 
 Derived from archetype, tags, and attributes. Cached as a value on the player card. Reactively recalculated when any relevant value changes (development card applied, tag added or removed, permanent attribute change). Stable mid-game — Heat and fatigue handle in-game variation on top of the stable fit base.
@@ -632,5 +681,5 @@ Identity Cards replace each other as the coach evolves — the library of 20 all
 | Platforms | Not addressed. Casual session length and card visual language suggest mobile viability alongside desktop. |
 | Attribute and tag interaction model | How attributes are defined, scaled, and combined with tags to derive player fit values. Deferred to its own design session. |
 | Defensive simulation | Resolved. Mirror model with weighted scoring function, defensive response vocabulary, and proximity function. See §4.2 — Defensive simulation. |
-| Fatigue model | How fatigue accumulates per action and per game, and how it feeds into the possession generator and time cost function. |
+| Fatigue model | Resolved. Accumulation function, recovery schedule, display thresholds. See §4.2 — Fatigue model. |
 | Play type action budgets | Base shot clock budget per play type (e.g. transition vs. half-court set). Interface supports variable budgets from day one; calibration deferred. |
