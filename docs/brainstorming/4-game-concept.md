@@ -87,29 +87,217 @@ There is no skip and no auto-resolve. Every game is played. Blowouts are fast, n
 
 ### 4.2 The Simulation Model
 
-The game uses a **possession-level simulation** decoupled from the presentation clock.
+The game uses an **action-driven simulation** coordinated by a central controller. Possessions are logical groupings of actions — each possession runs an interleaved chain of offensive and defensive micro-decisions until a terminal event fires or the shot clock expires. The presentation layer is a synchronous consumer of the simulation's output, paced by the controller.
 
-#### Simulation granularity
+#### Service architecture
 
-Each possession resolves as a discrete unit. The outcome is attributed to 1–2 primary players and tagged with the play type that produced it:
+The simulation is decomposed into six services:
 
-- **Outcome types:** scored, missed shot, turnover, foul drawn, defensive stop
-- **Primary attribution:** the player who took the shot, turned it over, made the defensive stop, etc.
-- **Secondary attribution** (optional): screener, assister, help defender
-- **Play type tag:** `iso`, `pick-and-roll`, `post-up`, `transition`, `spot-up`, `cut`, etc.
+- **Controller** — owns the game loop and game state. Evaluates crisis triggers after each action. Routes player input. The only service with mutation rights over game state.
+- **Simulation** — pure producer. Takes game state and parameters, returns action results. No UI awareness, no side effects.
+- **Presentation** — pure consumer. Receives events from the controller, updates the display, controls pacing. Signals player input back to the controller. No simulation awareness.
+- **Crisis Engine** — evaluates trigger conditions after each action. Returns an active crisis window or null. Read-only access to game state.
+- **Attribution Engine** — computes per-player chained delta scores from completed action chains. Feeds the Heat Engine and Recency Tracker.
+- **Heat Engine** — maintains rolling per-player Heat scores. Updated after each possession. Exposes Heat state to the simulation as an input parameter.
+- **Recency Tracker** — maintains a 6–8 possession rolling window per play type. Updated after each possession. Exposes recency scores to the simulation.
 
-This resolution level is sufficient to drive all derived indicators — Heat, matchup line pulses, crisis triggers, scheme interactions — without requiring per-dribble or per-pass tracking.
+#### Game loop
 
-#### Decoupled presentation clock
+Action-driven. One iteration per action, not per possession:
 
-The simulation resolves possessions instantly. A separate presentation layer paces the display:
+```
+loop:
+  simulation produces next action_result
+  controller receives action_result
 
-- **Baseline pace:** approximately 1 possession per 4–8 seconds of screen time
-- **Blowouts** compress faster — shorter pauses between outcomes, less narration per event
-- **Tight games** stretch — more commentary, more crisis windows, slower pace
-- **High-drama events** (buzzer-beaters, flagrants, momentum swings) receive additional presentation weight regardless of game state
+  attribution engine updates from action_result
+  controller applies immediate parameter changes
+  crisis engine evaluates triggers
 
-Crisis windows work by the presentation layer **slowing or pausing** the possession clock to give the player time to respond. The simulation does not stop — the window is a presentation-layer gate, not a simulation pause.
+  match action_result.type:
+
+    in_possession_action:
+      presentation logs event         // near-zero hold, simulation released immediately
+
+    possession_end:
+      heat engine updates
+      recency tracker updates
+      presentation updates display
+      controller flushes next_possession change queue
+      simulation released
+
+    crisis_trigger:
+      presentation blocks
+      player response collected
+      controller flushes immediate change queue
+      simulation released
+
+    quarter_end:
+      controller flushes next_quarter change queue
+      possession_end sequence runs
+
+    game_end:
+      controller flushes next_game change queue
+      final attribution computed
+```
+
+#### Parameter change timing
+
+Every change to simulation parameters carries an `effective_when` attribute. The controller flushes each timing tier's change queue at the appropriate boundary. Player-driven background layer changes (rotation, scheme) are queued — never applied mid-action.
+
+| `effective_when` | Flush condition | Examples |
+|---|---|---|
+| `immediate` | Before next action | Crisis response, timeout called |
+| `next_dead_ball` | Next stoppage | Substitution |
+| `next_possession` | Possession boundary | Rotation queue, scheme change |
+| `next_quarter` | Quarter boundary | Structural lineup change |
+| `next_game` | Game end | Development card, off-season decision |
+
+#### Possession generator
+
+The scheme is the full possession generator. It co-determines play type and all role assignments via a single weighted scoring function evaluated over all valid options. The highest-scoring option wins most of the time; a tight weighted-random draw from the top N prevents perfect predictability.
+
+```
+option_score(play_type) =
+  scheme_weight(play_type)
+  + play_type_recency_score(play_type, last_6_to_8_possessions)
+  + player_fit(primary_candidate, play_type)
+  + heat_modifier(primary_candidate)
+  - fatigue_penalty(primary_candidate)
+  + matchup_exploit(primary_candidate, defender)
+```
+
+Secondary roles (screener, spacers, assister) are assigned from remaining on-court players by the same scheme logic after the primary play type is determined.
+
+**Play type recency** uses a symmetric possession value scale over a 6–8 possession rolling window per play type:
+
+| Outcome | Possession value |
+|---|---|
+| Shot made | +1.0 |
+| Foul drawn | +0.8 |
+| Offensive rebound off miss | +0.3 |
+| Shot missed, defensive rebound | -0.5 |
+| Turnover | -1.0 |
+| Flagrant / technical | -1.2 |
+
+A play type that has been failing accumulates a negative recency score and is naturally deprioritised without a hard rule.
+
+#### Action chain
+
+Each possession is a chain of interleaved offensive and defensive micro-decisions. Each node:
+
+```
+action_node {
+  actor              // performing player
+  side               // offense | defense
+  options[]          // available branches
+  selected_option    // chosen branch
+  deltas{}           // per-player attribution contributions from this action
+}
+```
+
+The chain terminates on a terminal event or shot clock exhaustion.
+
+#### Time economy
+
+Each action consumes real seconds from the shot clock via:
+
+```
+time_cost_function(
+  shot_clock_remaining,        // current shot clock in seconds
+  current_action,              // action being executed
+  actor,                       // performing player (attributes, tags, fatigue)
+  defender,                    // defending player (attributes, tags, fatigue)
+  defensive_scheme_pressure,   // scheme-level time compression scalar
+  previous_action_result       // rhythm context from prior action
+) → seconds_consumed
+```
+
+External unit is always real seconds. Internal representation is scalable from a simple action-count approximation to a full time economy. Shot clock resets (e.g. 14 seconds after an offensive rebound, runoffs, out-of-bounds) are applied by the controller before passing the updated value into the next action.
+
+**Shot clock exhaustion branch:**
+
+```
+if shot_clock_remaining critically_low and no terminal event:
+  evaluate shot_clock_awareness(actor)
+    high IQ / shot-clock-savvy tag  → hurried shot (bad look, penalised)
+    mid IQ                          → coin flip: hurried shot or violation
+    low IQ / ball-stopper tag       → shot clock violation (turnover)
+```
+
+#### Full possession attribution
+
+Every player on the floor receives a chained delta score per possession. Deltas compound additively — multiple contributions in a single possession chain. There is no designated primary player; the highest scorer in `player_scores{}` is derived on demand for narration or Heat purposes.
+
+**Active contribution deltas:**
+
+| Event | Delta |
+|---|---|
+| Good screen set | +0.5 |
+| Poor screen | -0.3 |
+| Ball handler — good decision | +0.5 |
+| Ball handler — poor decision | -0.3 |
+| Good pass | +0.5 |
+| Shot attempt — good look | +0.5 |
+| Shot attempt — bad look | -0.5 |
+| Shot made | +1.0 |
+| Shot missed | -0.5 |
+| Offensive rebound | +0.8 |
+| Good pass after offensive rebound | +0.3 |
+| Foul drawn | +0.8 |
+| Turnover | -1.0 |
+| Flagrant / technical | -1.2 |
+
+**Passive contribution deltas** (player affects the play without touching the ball):
+
+| Event | Delta |
+|---|---|
+| Gravity — spacing created lane for drive | +0.4 |
+| Gravity — spacing created kick-out opportunity | +0.3 |
+| Good off-ball cut | +0.4 |
+| Poor spacing — clogged lane | -0.3 |
+| Defensive attention drawn | +0.2 |
+
+Gravity is tag-driven. Opponent scouting knowledge modulates gravity magnitude — a shooter the opponent has not yet scouted exerts reduced gravity because the defense has not learned to respect them.
+
+**Example — pick-and-roll, corner kick-out, shot made:**
+
+| Player | Deltas | Total |
+|---|---|---|
+| Ball handler | good decision +0.5, good pass +0.5 | +1.0 |
+| Screener | good screen +0.5 | +0.5 |
+| Corner shooter | gravity +0.3, good look +0.5, shot made +1.0 | +1.8 |
+| Other wing | spacing maintained +0.2 | +0.2 |
+
+The corner shooter receives the largest score despite not initiating the play. Their Heat compounds accordingly.
+
+#### Player fit
+
+Derived from archetype, tags, and attributes. Cached as a value on the player card. Reactively recalculated when any relevant value changes (development card applied, tag added or removed, permanent attribute change). Stable mid-game — Heat and fatigue handle in-game variation on top of the stable fit base.
+
+#### Terminal events
+
+| Event | V1 | Later |
+|---|---|---|
+| Shot attempt | Yes | — |
+| Turnover — shot clock violation | Yes | — |
+| Turnover — bad pass | Yes | — |
+| Defensive foul | Yes | — |
+| Turnover — stolen | Approximated (low-probability branch) | Full attribute check |
+| Turnover — out of bounds | No | Yes |
+| Offensive foul — charge | No | Yes |
+| Offensive foul — illegal screen | No | Yes |
+| Technical / flagrant | No | Yes |
+
+#### Presentation contract
+
+The simulation and presentation are synchronous. The controller produces one action result at a time; the presentation acquires it and releases the simulation as quickly as possible:
+
+- **In-possession action** — presentation logs the event and releases immediately (near-zero hold)
+- **Possession end** — presentation updates the display, controller flushes queued parameter changes, simulation released (milliseconds)
+- **Crisis trigger** — presentation blocks, player response is collected, controller applies the response, simulation released
+
+Background layer changes (rotation, scheme) made by the player mid-possession are queued with `effective_when: next_possession` and applied cleanly at the possession boundary. The simulation never sees a mid-action state mutation.
 
 ### 4.3 Heat: Performance Indicator System
 
@@ -117,47 +305,15 @@ Heat is the primary per-player performance indicator. It is a rolling signal of 
 
 #### Signal production
 
-Heat is computed as a rolling weighted score across the **last 5 possessions** for that player. Each possession event decomposes into an **action delta** (rewarding or penalising the player's decision regardless of outcome) and an **outcome delta** (rewarding or penalising what actually happened). This separation ensures a player is credited for a good shot that happened to miss, and penalised for a bad shot that happened to go in.
+Heat is fed directly by the **Attribution Engine** output. After each possession is finalised, the Attribution Engine computes a chained delta score for every player on the floor (see §4.2 — Full possession attribution). Each player's possession score is the direct input to their Heat rolling window. There is no separate Heat delta table — the attribution model is the single source of per-player performance scoring, consumed by both Heat and the Recency Tracker.
 
-**Offensive events:**
+Heat is computed as a rolling weighted score across the **last 5 possessions** for that player. Deltas chain additively within a possession: a player can accumulate multiple positive and negative contributions from a single possession depending on their role and what happened. This separation of action quality from outcome ensures a player is credited for a good shot that happened to miss, and penalised for a bad shot that happened to go in.
 
-| Event | Delta | Notes |
-|---|---|---|
-| Good shot taken (open, quality look) | +0.5 | Action credit — rewards shot selection |
-| Bad shot taken (contested, low quality) | -0.5 | Action penalty — punishes poor decisions |
-| Shot made | +1 | Outcome reward |
-| Shot missed | -1 | Outcome cost |
-| Assist | +1 | Equivalent to making a shot |
-| Offensive rebound | +1 | Protects or generates a possession |
-| Turnover (own) | -1.5 | Costs a possession |
+For the full delta table see §4.2 — Full possession attribution. Representative net examples:
 
-Net examples: good shot made = **+1.5**; good shot missed = **-0.5**; bad shot made = **+0.5**; bad shot missed = **-1.5**
-
-**Defensive events:**
-
-| Action | Action delta | Outcome | Outcome delta | Combined |
-|---|---|---|---|---|
-| Good positioning | +0.5 | Stop | +1 | **+1.5** |
-| Good positioning | +0.5 | Scored on | -1 | **-0.5** |
-| Bad positioning | -0.5 | Stop | +1 | **+0.5** |
-| Bad positioning | -0.5 | Scored on | -1 | **-1.5** |
-| Good shot contest | +0.5 | Forced miss | +1 | **+1.5** |
-| Good shot contest | +0.5 | Made anyway | -1 | **-0.5** |
-| No/bad contest | -0.5 | Missed anyway | +1 | **+0.5** |
-| No/bad contest | -0.5 | Open look made | -1 | **-1.5** |
-| Steal | +0.5 (action) + 1.5 (forced TO) | — | — | **+2** |
-| Block (own team recovers) | +0.5 (action) + 1.5 (possession secured) | — | — | **+2** |
-| Block (out of bounds) | +0.5 (action) + 1 (stop) | — | — | **+1.5** |
-| Defensive rebound | +1 | — | — | **+1** |
-
-**Foul events:**
-
-| Event | Delta | Notes |
-|---|---|---|
-| Foul drawn (offensive) | +1 | Good action + earned free throws |
-| Tactical foul (deliberate, correct decision) | 0 | Net neutral — smart team play |
-| Careless / reaching foul | -1.5 | Matches turnover cost |
-| Flagrant / technical | -2 | Composure failure |
+- Good screen + ball handler good decision + shot made: **+2.0** (screener +0.5, handler +1.0, shooter +1.5)
+- Corner shooter gravity held defender + good look + shot missed: **+0.3** (+0.3 gravity, +0.5 look, -0.5 miss)
+- Turnover after poor decision: **-1.3** (-0.3 decision, -1.0 turnover)
 
 #### Heat states and thresholds
 
@@ -257,12 +413,20 @@ Always available during the game. The player is not forced to interact, but info
 ### 4.6 The Crisis Layer
 
 **What triggers a crisis window:**
-- Momentum swings (opponent goes on a 7-2 run)
-- Foul trouble on a key player
-- Injury or health scare
-- Hot hand on either side requiring response
-- End-of-quarter or end-of-half decision points
-- Late-game close-score situations
+
+Crisis windows are evaluated by the Crisis Engine after every action — not on a fixed cadence. They fire when a specific trigger condition is met. Crisis windows cannot stack; if two triggers fire simultaneously, one window fires and the other is queued FIFO. End-of-period windows always jump the queue.
+
+| Trigger | Condition |
+|---|---|
+| Momentum swing | Opponent scores N consecutive possessions without reply |
+| Foul trouble | Key player reaches 3 fouls in first half, or 5 fouls in second |
+| Hot hand | Any player reaches Hot state and is being actively exploited |
+| Cold hand | Key player reaches Cold state and opponent is routing plays at them |
+| Injury / health scare | Fatigue threshold exceeded + contact action fires |
+| End of quarter | Final action before quarter boundary |
+| End of half | Final action before half boundary |
+| Late game close score | Inside 2 minutes, score within 5 points |
+| Shot clock desperation | Shot clock under 4 seconds, no terminal event yet |
 
 **What the window looks like:**
 A visual and audio signal marks the opening of a crisis window. The window has a timing component — it closes if the player doesn't respond, just as a real coaching opportunity closes when the possession ends. The window is long enough for a deliberate player to always respond; its purpose is to keep engagement, not to punish reaction time. An experienced coach (higher reputation, specific Identity Cards) can see signals one possession earlier, effectively widening their response window.
@@ -400,3 +564,7 @@ Identity Cards replace each other as the coach evolves — the library of 20 all
 | League simulation depth | How much does the rest of the league simulate between games? Rival teams need enough depth to produce the rival franchise stories from [3-storyline.md](3-storyline.md). |
 | Multiplayer or single-player only | Document 2 notes single-player focus; no decision required now but should be explicitly deferred rather than assumed. |
 | Platforms | Not addressed. Casual session length and card visual language suggest mobile viability alongside desktop. |
+| Attribute and tag interaction model | How attributes are defined, scaled, and combined with tags to derive player fit values. Deferred to its own design session. |
+| Defensive simulation | The defensive side of the action chain decision nodes. Currently a scheme-lookup stub; needs its own weighted evaluation model mirroring the offensive side. |
+| Fatigue model | How fatigue accumulates per action and per game, and how it feeds into the possession generator and time cost function. |
+| Play type action budgets | Base shot clock budget per play type (e.g. transition vs. half-court set). Interface supports variable budgets from day one; calibration deferred. |
