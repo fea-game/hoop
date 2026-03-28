@@ -2,9 +2,7 @@
 title: Hoop Dynasty - Season Structure
 ---
 
-## 1. The Season Structure
-
-### 1.1 Season as Roguelite Run
+## 1. Season as Roguelite Run
 
 Each season is a self-contained story chapter. It has a beginning (roster assembly, coaching philosophy selection), a middle (the regular season), a climax (the playoffs), and an end (contracts expire, the season's story closes). The coach persists; the roster is largely rebuilt.
 
@@ -19,7 +17,7 @@ Each season is a self-contained story chapter. It has a beginning (roster assemb
 - The historical record (league lore, rivalries, narrative archive — see [3-storyline.md](../brainstorming/3-storyline.md))
 - Cross-run unlocked Identity Cards (available to future coaching runs as starting options)
 
-### 1.2 Natural Roster Churn
+## 2. Natural Roster Churn
 
 Roster resets are not arbitrary permadeath. They emerge from realistic basketball conditions:
 - A player at the end of their career retires
@@ -29,7 +27,7 @@ Roster resets are not arbitrary permadeath. They emerge from realistic basketbal
 
 The coach actively manages this: contract negotiation is a between-game action during the off-season phase. The player decides who to pursue, who to let go, and who to fight to keep. This creates natural continuity (a beloved player returning) and natural loss (a cornerstone leaving for a rival).
 
-### 1.3 Coaching Free Agency
+## 3. Coaching Free Agency
 
 At season end, the coach enters their own free agency:
 - **2–3 curated offers** arrive, shaped by the coach's reputation and philosophical profile (a defensive coach gets offered defense-minded teams)

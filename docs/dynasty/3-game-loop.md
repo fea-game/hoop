@@ -2,9 +2,7 @@
 title: Hoop Dynasty - The Exhibition Game Loop
 ---
 
-## 1. The Exhibition Game Loop
-
-### 1.1 Overview
+## 1. Overview
 
 The exhibition game is the core session unit. It is a live simulation with two active layers: a **background planning layer** (ongoing, low-urgency) and a **foreground crisis layer** (triggered, high-urgency). The player watches the simulation unfold and manages both layers simultaneously.
 
@@ -16,11 +14,11 @@ The exhibition game is the core session unit. It is a live simulation with two a
 
 There is no skip and no auto-resolve. Every game is played. Blowouts are fast, not absent.
 
-### 1.2 The Simulation Model
+## 2. The Simulation Model
 
 The game uses an **action-driven simulation** coordinated by a central controller. Possessions are logical groupings of actions — each possession runs an interleaved chain of offensive and defensive micro-decisions until a terminal event fires or the shot clock expires. The presentation layer is a synchronous consumer of the simulation's output, paced by the controller.
 
-#### Service architecture
+### Service architecture
 
 The simulation is decomposed into six services:
 
@@ -32,7 +30,7 @@ The simulation is decomposed into six services:
 - **Heat Engine** — maintains rolling per-player Heat scores. Updated after each possession. Exposes Heat state to the simulation as an input parameter.
 - **Recency Tracker** — maintains a 6–8 possession rolling window per play type. Updated after each possession. Exposes recency scores to the simulation.
 
-#### Game loop
+### Game loop
 
 Action-driven. One iteration per action, not per possession:
 
@@ -72,7 +70,7 @@ loop:
       final attribution computed
 ```
 
-#### Parameter change timing
+### Parameter change timing
 
 Every change to simulation parameters carries an `effective_when` attribute. The controller flushes each timing tier's change queue at the appropriate boundary. Player-driven background layer changes (rotation, scheme) are queued — never applied mid-action.
 
@@ -84,7 +82,7 @@ Every change to simulation parameters carries an `effective_when` attribute. The
 | `next_quarter` | Quarter boundary | Structural lineup change |
 | `next_game` | Game end | Development card, off-season decision |
 
-#### Possession generator
+### Possession generator
 
 The scheme is the full possession generator. It co-determines play type and all role assignments via a single weighted scoring function evaluated over all valid options. The highest-scoring option wins most of the time; a tight weighted-random draw from the top N prevents perfect predictability.
 
@@ -113,7 +111,7 @@ Secondary roles (screener, spacers, assister) are assigned from remaining on-cou
 
 A play type that has been failing accumulates a negative recency score and is naturally deprioritised without a hard rule.
 
-#### Action chain
+### Action chain
 
 Each possession is a chain of interleaved offensive and defensive micro-decisions. Each node:
 
@@ -129,7 +127,7 @@ action_node {
 
 The chain terminates on a terminal event or shot clock exhaustion.
 
-#### Time economy
+### Time economy
 
 Each action consumes real seconds from the shot clock via:
 
@@ -156,7 +154,7 @@ if shot_clock_remaining critically_low and no terminal event:
     low IQ / ball-stopper tag       → shot clock violation (turnover)
 ```
 
-#### Full possession attribution
+### Full possession attribution
 
 Every player on the floor receives a chained delta score per possession. Deltas compound additively — multiple contributions in a single possession chain. There is no designated primary player; the highest scorer in `player_scores{}` is derived on demand for narration or Heat purposes.
 
@@ -202,11 +200,11 @@ Gravity is tag-driven. Opponent scouting knowledge modulates gravity magnitude �
 
 The corner shooter receives the largest score despite not initiating the play. Their Heat compounds accordingly.
 
-#### Fatigue model
+### Fatigue model
 
 Fatigue is a cumulative in-game value on each player's state, starting at 0 and climbing. It feeds directly into the possession generator (`fatigue_penalty`), the time cost function, and the proximity function as a scalar — no separate translation needed.
 
-##### Accumulation function
+#### Accumulation function
 
 ```
 fatigue_delta(
@@ -223,7 +221,7 @@ Action intensity drives accumulation independently of role — a hard-hedge or a
 
 **Later:** Per-action intensity weights differentiated at the individual action level; full tag interaction model.
 
-##### Recovery
+#### Recovery
 
 Recovery is discrete — calculated at possession boundaries for benched players, with a larger batch at quarter breaks. No continuous background tick.
 
@@ -238,7 +236,7 @@ Recovery rate is modulated by `minutes_played` — a player who has played heavy
 
 **V1:** Flat rates for all recovery events. Minutes-played modulation and tag interactions later.
 
-##### Display and thresholds
+#### Display and thresholds
 
 Fatigue is displayed as a continuous bar on each player card (bleeds into the card border — see §1.4). The bar is a direct readout of the cumulative fatigue score, not a discrete state system.
 
@@ -251,15 +249,15 @@ Two thresholds sit on top of the continuous bar:
 
 **V1:** Two thresholds, continuous bar, colour change at warning. Injury risk at critical is already stubbed in the crisis trigger list.
 
-#### Player fit
+### Player fit
 
 Derived from archetype, tags, and attributes. Cached as a value on the player card. Reactively recalculated when any relevant value changes (development card applied, tag added or removed, permanent attribute change). Stable mid-game — Heat and fatigue handle in-game variation on top of the stable fit base.
 
-#### Defensive simulation
+### Defensive simulation
 
 The defensive side of the action chain uses a **mirror model** — the same weighted scoring function pattern as the offensive possession generator, applied to defensive response options. The defense is not a passive resistance layer or a scheme lookup table; it is an active decision-making system evaluated per action node.
 
-##### Defensive response vocabulary
+#### Defensive response vocabulary
 
 | Response | Situation | V1 |
 |---|---|---|
@@ -276,7 +274,7 @@ The defensive side of the action chain uses a **mirror model** — the same weig
 | `press` | Transition — full-court pressure | Later |
 | `face-guard` | Perimeter — extreme denial, follows player everywhere | Later |
 
-##### Defensive scoring function
+#### Defensive scoring function
 
 ```
 option_score(defensive_response) =
@@ -295,7 +293,7 @@ option_score(defensive_response) =
 - **`fatigue_penalty`** — same as offense. A fatigued defender defaults toward lower-effort responses (`sag-off`, `drop`).
 - **`help_defender_availability`** — responses requiring a second defender (`hard-hedge`, `double-team`, `help-and-rotate`) are penalised if the nearest help defender is fatigued, in foul trouble, or already committed elsewhere. Determined by the proximity function (see below).
 
-##### Proximity function
+#### Proximity function
 
 Proximity decouples defensive availability from rigid 1-on-1 matchup assignment. It works for both man-to-man and zone defense, where defenders guard areas rather than specific players. It is the input to `help_defender_availability` and any other system that needs to know whether a defender can realistically reach an action.
 
@@ -321,7 +319,7 @@ proximity(
 
 **Later:** A floor-position model with spatial coordinates per scheme, enabling realistic zone coverage gaps and rotation chains.
 
-#### Terminal events
+### Terminal events
 
 | Event | V1 | Later |
 |---|---|---|
@@ -335,7 +333,7 @@ proximity(
 | Offensive foul — illegal screen | No | Yes |
 | Technical / flagrant | No | Yes |
 
-#### Presentation contract
+### Presentation contract
 
 The simulation and presentation are synchronous. The controller produces one action result at a time; the presentation acquires it and releases the simulation as quickly as possible:
 
@@ -345,11 +343,11 @@ The simulation and presentation are synchronous. The controller produces one act
 
 Background layer changes (rotation, scheme) made by the player mid-possession are queued with `effective_when: next_possession` and applied cleanly at the possession boundary. The simulation never sees a mid-action state mutation.
 
-### 1.3 Heat: Performance Indicator System
+## 3. Heat: Performance Indicator System
 
 Heat is the primary per-player performance indicator. It is a rolling signal of recent in-game performance, displayed as three visible states: **Cold**, **Neutral**, and **Hot**.
 
-#### Signal production
+### Signal production
 
 Heat is fed directly by the **Attribution Engine** output. After each possession is finalised, the Attribution Engine computes a chained delta score for every player on the floor (see §1.2 — Full possession attribution). Each player's possession score is the direct input to their Heat rolling window. There is no separate Heat delta table — the attribution model is the single source of per-player performance scoring, consumed by both Heat and the Recency Tracker.
 
@@ -361,7 +359,7 @@ For the full delta table see §1.2 — Full possession attribution. Representati
 - Corner shooter gravity held defender + good look + shot missed: **+0.3** (+0.3 gravity, +0.5 look, -0.5 miss)
 - Turnover after poor decision: **-1.3** (-0.3 decision, -1.0 turnover)
 
-#### Heat states and thresholds
+### Heat states and thresholds
 
 The rolling 5-possession score maps to three visible states on the card:
 
@@ -371,13 +369,13 @@ The rolling 5-possession score maps to three visible states on the card:
 | **Neutral** | No indicator | Baseline performance |
 | **Cold** | Cool muted tint on card | Player is underperforming or making poor decisions |
 
-#### In-game consequences
+### In-game consequences
 
 Heat state modifies the **probability weights** used in possession resolution — not fixed stat bonuses. A hot player gets a positive skew on shot quality rolls and defensive positioning rolls. A cold player gets a negative skew. This means Heat affects the *distribution* of outcomes, not guaranteed results.
 
 The opponent AI reads Heat states and reacts visibly: plays are routed away from hot defenders and toward cold defenders. This is reflected in matchup line changes on the court display, making Heat a real tactical signal for both the player and the AI.
 
-#### Between-game consequences (via Morale)
+### Between-game consequences (via Morale)
 
 Heat feeds into each player's **Morale** stat (range 0–20), which persists between games:
 
@@ -401,7 +399,7 @@ Morale thresholds gate several post-game effects:
 
 **Minutes expectation pressure:** A player at Engaged morale (17+) who is significantly benched the following game takes an additional -1 morale cost. Being hot and then sidelined stings.
 
-#### Player tags affecting Morale dynamics
+### Player tags affecting Morale dynamics
 
 Player cards can carry tags that modify how their Morale responds to Heat:
 
@@ -414,7 +412,7 @@ Player cards can carry tags that modify how their Morale responds to Heat:
 | `team-first` | Morale partially driven by team win/loss, not just personal Heat |
 | `confidence-dependent` | Hot → +3 morale; Cold → -3 morale (heightened sensitivity) |
 
-#### Season-level consequences
+### Season-level consequences
 
 Sustained Heat history across a full season shapes macro outcomes:
 
@@ -424,7 +422,7 @@ Sustained Heat history across a full season shapes macro outcomes:
 - **Narrative tag changes** — a breakout hot season can unlock tags (`breakout-star`, `clutch-performer`); sustained cold risks losing a positive tag or gaining a negative one
 - **Coach reputation contribution** — developing a player who ran consistently hot contributes to the coach's reputation score, making it easier to attract similar talent in future seasons
 
-### 1.4 The Court Display
+## 4. The Court Display
 
 The primary visual surface is a **static 5v5 card formation**:
 - Ten player cards (5 per side), displayed in a slightly tilted/rotated layout to create an illusion of depth
@@ -441,7 +439,7 @@ The primary visual surface is a **static 5v5 card formation**:
 
 **Ball indicator:** A glowing marker rests on the attacking side's formation to indicate possession. Possession changes flip the indicator. No physical card movement is required.
 
-### 1.5 The Background Planning Layer
+## 5. The Background Planning Layer
 
 Always available during the game. The player is not forced to interact, but informed players will:
 
@@ -456,7 +454,7 @@ Always available during the game. The player is not forced to interact, but info
 - Scheme changes have a lag — players need a possession or two to adjust
 - The active scheme changes the card formation layout on the court display, giving the opponent the same visual feedback they'd get from their scouting
 
-### 1.6 The Crisis Layer
+## 6. The Crisis Layer
 
 **What triggers a crisis window:**
 
@@ -485,7 +483,7 @@ The player responds using their **situation card hand** (5 cards selected pre-ga
 
 Timeouts are a limited economy: spending one early saves a crisis, but the fourth quarter with no timeouts left is a real consequence. The economic decision (which card to spend, whether to burn a timeout for more options) is the primary skill of the crisis layer.
 
-### 1.7 Blowouts as a Distinct Mode
+## 7. Blowouts as a Distinct Mode
 
 Blowouts are not lesser games — they are a different mode:
 - **Garbage time signal:** When a game reaches blowout territory, a visual signal indicates the coach can safely experiment

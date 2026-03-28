@@ -2,7 +2,7 @@
 title: Hoop Dynasty - Design Notes
 ---
 
-## 1. Resolved Design Tensions
+## 1. Resolved Tensions
 
 | Tension | Resolution |
 |---|---|

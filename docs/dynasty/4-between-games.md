@@ -2,9 +2,7 @@
 title: Hoop Dynasty - The Between-Game Layer
 ---
 
-## 1. The Between-Game Layer
-
-### 1.1 Structure
+## 1. Structure
 
 After each game, and before the next, the player moves through a **fixed short sequence** with one meaningful decision slot. This is the casual layer — completable in under 5 minutes — with the open hub always available for deeper engagement.
 
@@ -15,7 +13,7 @@ After each game, and before the next, the player moves through a **fixed short s
 4. **Opponent scouting preview** — partial view of the next opponent's visible formation and known players
 5. **Pre-game setup** — select 5 situation cards for the game hand; confirm rotation queue; set opening scheme
 
-### 1.2 The Context-Gated Decision
+## 2. The Context-Gated Decision
 
 The one free decision is not always the same menu. Available options are determined by the current season phase and events:
 
@@ -30,7 +28,7 @@ The one free decision is not always the same menu. Available options are determi
 
 The constrained menu makes each decision meaningful. The player cannot do everything — they must choose.
 
-### 1.3 Scouting and Information Decay
+## 3. Scouting and Information Decay
 
 **Own scheme:** Always fully visible. The player chose it.
 

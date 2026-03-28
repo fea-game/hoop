@@ -2,11 +2,9 @@
 title: Hoop Dynasty - The Card Systems
 ---
 
-## 1. The Card Systems
-
 Three distinct card types share a unified visual language. All cards look like cards; their type and tier determine their function.
 
-### 1.1 Player Cards (Dossiers)
+## 1. Player Cards (Dossiers)
 
 Player cards are not played from a hand. They are persistent objects representing a player:
 - Narrative tags (from the tag vocabulary in [3-storyline.md](../brainstorming/3-storyline.md))
@@ -16,7 +14,7 @@ Player cards are not played from a hand. They are persistent objects representin
 
 Player cards appear on the court display, in the roster screen, and in the historical record. Discovering a player through scouting reveals their card — a moment of genuine exploration and collection. The card's art and presentation reflect the player's archetype, making the roster visually readable at a glance.
 
-### 1.2 Situation Cards (Coaching Crisis Hand)
+## 2. Situation Cards (Coaching Crisis Hand)
 
 The coaching toolkit for in-game crisis management:
 - Rebuilt each season through between-game decisions (training sessions, film room work, scouting reports, narrative events)
@@ -26,7 +24,7 @@ The coaching toolkit for in-game crisis management:
 
 Situation cards are what the coaching philosophy looks like in practice. A defensive coach who built their season toolkit differently has different crisis options than a pace-and-space coach.
 
-### 1.3 Development Cards (Player Power-Ups)
+## 3. Development Cards (Player Power-Ups)
 
 Applied between games to individual players:
 - Compatible with specific player types and archetypes only (a `positionless-forward` can use development cards a `3d-specialist` cannot, and vice versa)
@@ -34,7 +32,7 @@ Applied between games to individual players:
 - Examples: "Elite Shooting Camp," "Defensive Footwork Drills," "Mentorship" (requires a veteran player on the roster), "New Shoes" (reduces injury risk for one season), "Film Study" (reveals a hidden player tag)
 - Some development cards are compatible with multiple archetypes; the most powerful are narrowly specific
 
-### 1.4 Identity Cards (Coaching Legacy)
+## 4. Identity Cards (Coaching Legacy)
 
 The persistent meta-progression layer:
 - Collected across seasons and runs through legacy achievements
