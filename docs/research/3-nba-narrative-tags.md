@@ -3,9 +3,8 @@ generated: 2026-03-27
 research_depth: "primary (59 sources via NLM deep research agent) + approved secondary (4 additional sources: NBAStu rivalries, 2003-04 Detroit Pistons Wikipedia, Phoenix Suns Wikipedia, Giannis Antetokounmpo Wikipedia, Larry Bird Wikipedia)"
 notebooklm_notebook: https://notebooklm.google.com/notebook/8bc83826-c260-4a99-b8b5-425d0268a208
 artifact_briefing_doc: notebooklm-briefing-nba-narrative-tags.md
+title: NBA Narrative Tag Vocabulary
 ---
-
-# NBA Narrative Tag Vocabulary
 
 *Research Report — Artifact B*
 
@@ -13,21 +12,22 @@ artifact_briefing_doc: notebooklm-briefing-nba-narrative-tags.md
 
 ## Table of Contents
 
-1. [Research Question & Scope](#1-research-question--scope)
-2. [Methodology](#2-methodology)
-3. [Key Findings — Tag Vocabulary (8 Domains)](#3-key-findings--tag-vocabulary-8-domains)
-   - [Domain 1 — Player Identity / Archetype](#domain-1--player-identity--archetype)
-   - [Domain 2 — Chemistry and Synergy](#domain-2--chemistry-and-synergy)
-   - [Domain 3 — Relationship](#domain-3--relationship)
-   - [Domain 4 — Potential and Development](#domain-4--potential-and-development)
-   - [Domain 5 — Moment / Event](#domain-5--moment--event)
-   - [Domain 6 — Season / Franchise State](#domain-6--season--franchise-state)
-   - [Domain 7 — Coach / GM Identity](#domain-7--coach--gm-identity)
-   - [Domain 8 — Legacy and Historical Comparison](#domain-8--legacy-and-historical-comparison)
-4. [Source Inventory](#4-source-inventory)
-5. [Conflicts & Open Questions](#5-conflicts--open-questions)
-6. [Blindspot / Gap Analysis](#6-blindspot--gap-analysis)
-7. [Recommended Next Steps](#7-recommended-next-steps)
+- [Table of Contents](#table-of-contents)
+- [1. Research Question \& Scope](#1-research-question--scope)
+- [2. Methodology](#2-methodology)
+- [3. Key Findings — Tag Vocabulary (8 Domains)](#3-key-findings--tag-vocabulary-8-domains)
+  - [Domain 1 — Player Identity / Archetype](#domain-1--player-identity--archetype)
+  - [Domain 2 — Chemistry and Synergy](#domain-2--chemistry-and-synergy)
+  - [Domain 3 — Relationship](#domain-3--relationship)
+  - [Domain 4 — Potential and Development](#domain-4--potential-and-development)
+  - [Domain 5 — Moment / Event](#domain-5--moment--event)
+  - [Domain 6 — Season / Franchise State](#domain-6--season--franchise-state)
+  - [Domain 7 — Coach / GM Identity](#domain-7--coach--gm-identity)
+  - [Domain 8 — Legacy and Historical Comparison](#domain-8--legacy-and-historical-comparison)
+- [4. Source Inventory](#4-source-inventory)
+- [5. Conflicts \& Open Questions](#5-conflicts--open-questions)
+- [6. Blindspot / Gap Analysis](#6-blindspot--gap-analysis)
+- [7. Recommended Next Steps](#7-recommended-next-steps)
 
 ---
 

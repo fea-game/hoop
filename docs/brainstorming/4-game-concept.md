@@ -85,7 +85,144 @@ The exhibition game is the core session unit. It is a live simulation with two a
 
 There is no skip and no auto-resolve. Every game is played. Blowouts are fast, not absent.
 
-### 4.2 The Court Display
+### 4.2 The Simulation Model
+
+The game uses a **possession-level simulation** decoupled from the presentation clock.
+
+#### Simulation granularity
+
+Each possession resolves as a discrete unit. The outcome is attributed to 1–2 primary players and tagged with the play type that produced it:
+
+- **Outcome types:** scored, missed shot, turnover, foul drawn, defensive stop
+- **Primary attribution:** the player who took the shot, turned it over, made the defensive stop, etc.
+- **Secondary attribution** (optional): screener, assister, help defender
+- **Play type tag:** `iso`, `pick-and-roll`, `post-up`, `transition`, `spot-up`, `cut`, etc.
+
+This resolution level is sufficient to drive all derived indicators — Heat, matchup line pulses, crisis triggers, scheme interactions — without requiring per-dribble or per-pass tracking.
+
+#### Decoupled presentation clock
+
+The simulation resolves possessions instantly. A separate presentation layer paces the display:
+
+- **Baseline pace:** approximately 1 possession per 4–8 seconds of screen time
+- **Blowouts** compress faster — shorter pauses between outcomes, less narration per event
+- **Tight games** stretch — more commentary, more crisis windows, slower pace
+- **High-drama events** (buzzer-beaters, flagrants, momentum swings) receive additional presentation weight regardless of game state
+
+Crisis windows work by the presentation layer **slowing or pausing** the possession clock to give the player time to respond. The simulation does not stop — the window is a presentation-layer gate, not a simulation pause.
+
+### 4.3 Heat: Performance Indicator System
+
+Heat is the primary per-player performance indicator. It is a rolling signal of recent in-game performance, displayed as three visible states: **Cold**, **Neutral**, and **Hot**.
+
+#### Signal production
+
+Heat is computed as a rolling weighted score across the **last 5 possessions** for that player. Each possession event decomposes into an **action delta** (rewarding or penalising the player's decision regardless of outcome) and an **outcome delta** (rewarding or penalising what actually happened). This separation ensures a player is credited for a good shot that happened to miss, and penalised for a bad shot that happened to go in.
+
+**Offensive events:**
+
+| Event | Delta | Notes |
+|---|---|---|
+| Good shot taken (open, quality look) | +0.5 | Action credit — rewards shot selection |
+| Bad shot taken (contested, low quality) | -0.5 | Action penalty — punishes poor decisions |
+| Shot made | +1 | Outcome reward |
+| Shot missed | -1 | Outcome cost |
+| Assist | +1 | Equivalent to making a shot |
+| Offensive rebound | +1 | Protects or generates a possession |
+| Turnover (own) | -1.5 | Costs a possession |
+
+Net examples: good shot made = **+1.5**; good shot missed = **-0.5**; bad shot made = **+0.5**; bad shot missed = **-1.5**
+
+**Defensive events:**
+
+| Action | Action delta | Outcome | Outcome delta | Combined |
+|---|---|---|---|---|
+| Good positioning | +0.5 | Stop | +1 | **+1.5** |
+| Good positioning | +0.5 | Scored on | -1 | **-0.5** |
+| Bad positioning | -0.5 | Stop | +1 | **+0.5** |
+| Bad positioning | -0.5 | Scored on | -1 | **-1.5** |
+| Good shot contest | +0.5 | Forced miss | +1 | **+1.5** |
+| Good shot contest | +0.5 | Made anyway | -1 | **-0.5** |
+| No/bad contest | -0.5 | Missed anyway | +1 | **+0.5** |
+| No/bad contest | -0.5 | Open look made | -1 | **-1.5** |
+| Steal | +0.5 (action) + 1.5 (forced TO) | — | — | **+2** |
+| Block (own team recovers) | +0.5 (action) + 1.5 (possession secured) | — | — | **+2** |
+| Block (out of bounds) | +0.5 (action) + 1 (stop) | — | — | **+1.5** |
+| Defensive rebound | +1 | — | — | **+1** |
+
+**Foul events:**
+
+| Event | Delta | Notes |
+|---|---|---|
+| Foul drawn (offensive) | +1 | Good action + earned free throws |
+| Tactical foul (deliberate, correct decision) | 0 | Net neutral — smart team play |
+| Careless / reaching foul | -1.5 | Matches turnover cost |
+| Flagrant / technical | -2 | Composure failure |
+
+#### Heat states and thresholds
+
+The rolling 5-possession score maps to three visible states on the card:
+
+| State | Indicator | Meaning |
+|---|---|---|
+| **Hot** | Warm glow on card | Player is performing above expectation in recent possessions |
+| **Neutral** | No indicator | Baseline performance |
+| **Cold** | Cool muted tint on card | Player is underperforming or making poor decisions |
+
+#### In-game consequences
+
+Heat state modifies the **probability weights** used in possession resolution — not fixed stat bonuses. A hot player gets a positive skew on shot quality rolls and defensive positioning rolls. A cold player gets a negative skew. This means Heat affects the *distribution* of outcomes, not guaranteed results.
+
+The opponent AI reads Heat states and reacts visibly: plays are routed away from hot defenders and toward cold defenders. This is reflected in matchup line changes on the court display, making Heat a real tactical signal for both the player and the AI.
+
+#### Between-game consequences (via Morale)
+
+Heat feeds into each player's **Morale** stat (range 0–20), which persists between games:
+
+| Game-end Heat state | Morale delta |
+|---|---|
+| Hot | +2 |
+| Warm | +1 |
+| Neutral | 0 |
+| Cool | -1 |
+| Cold | -2 |
+
+Morale thresholds gate several post-game effects:
+
+| Morale range | Player state | Effects |
+|---|---|---|
+| 17–20 | Engaged | Bonus development point available; contract retention leverage |
+| 12–16 | Stable | Baseline behaviour |
+| 7–11 | Frustrated | Narrative event risk fires; minutes expectation pressure activates |
+| 3–6 | Checked out | Trade demand risk; development points locked |
+| 0–2 | Crisis | Trade demand fires unless an intervention situation card is played |
+
+**Minutes expectation pressure:** A player at Engaged morale (17+) who is significantly benched the following game takes an additional -1 morale cost. Being hot and then sidelined stings.
+
+#### Player tags affecting Morale dynamics
+
+Player cards can carry tags that modify how their Morale responds to Heat:
+
+| Tag | Effect |
+|---|---|
+| `resilient` | Halves negative morale deltas from Heat |
+| `streaky` | Doubles Heat-driven morale deltas in both directions |
+| `veteran-leader` | Morale floor of 10 — never drops below Stable |
+| `high-maintenance` | Minimum morale drain of -1 per game regardless of Heat |
+| `team-first` | Morale partially driven by team win/loss, not just personal Heat |
+| `confidence-dependent` | Hot → +3 morale; Cold → -3 morale (heightened sensitivity) |
+
+#### Season-level consequences
+
+Sustained Heat history across a full season shapes macro outcomes:
+
+- **Contract value and trade leverage** — a player who ran consistently hot commands a higher contract; one who ran cold is cheaper to retain or move
+- **Permanent stat growth or regression** — a hot season can produce a permanent attribute increase carried into the next season; sustained cold can cause regression
+- **Free agency attractiveness** — a hot season attracts rival team interest in free agency; a cold season may produce no outside offers, reducing the player's leverage
+- **Narrative tag changes** — a breakout hot season can unlock tags (`breakout-star`, `clutch-performer`); sustained cold risks losing a positive tag or gaining a negative one
+- **Coach reputation contribution** — developing a player who ran consistently hot contributes to the coach's reputation score, making it easier to attract similar talent in future seasons
+
+### 4.4 The Court Display
 
 The primary visual surface is a **static 5v5 card formation**:
 - Ten player cards (5 per side), displayed in a slightly tilted/rotated layout to create an illusion of depth
@@ -96,13 +233,13 @@ The primary visual surface is a **static 5v5 card formation**:
 **Live indicators on each card:**
 - Fatigue bar (bleeds into card border as the game progresses)
 - Foul count
-- Heat (hot hand or cold streak indicator)
+- Heat (performance indicator — see §4.3)
 - Matchup line pulse (activates when a matchup is being exploited or a defensive mismatch is active)
 - Crisis indicator (glows when a crisis event is tied to that player)
 
 **Ball indicator:** A glowing marker rests on the attacking side's formation to indicate possession. Possession changes flip the indicator. No physical card movement is required.
 
-### 4.3 The Background Planning Layer
+### 4.5 The Background Planning Layer
 
 Always available during the game. The player is not forced to interact, but informed players will:
 
@@ -117,7 +254,7 @@ Always available during the game. The player is not forced to interact, but info
 - Scheme changes have a lag — players need a possession or two to adjust
 - The active scheme changes the card formation layout on the court display, giving the opponent the same visual feedback they'd get from their scouting
 
-### 4.4 The Crisis Layer
+### 4.6 The Crisis Layer
 
 **What triggers a crisis window:**
 - Momentum swings (opponent goes on a 7-2 run)
@@ -138,7 +275,7 @@ The player responds using their **situation card hand** (5 cards selected pre-ga
 
 Timeouts are a limited economy: spending one early saves a crisis, but the fourth quarter with no timeouts left is a real consequence. The economic decision (which card to spend, whether to burn a timeout for more options) is the primary skill of the crisis layer.
 
-### 4.5 Blowouts as a Distinct Mode
+### 4.7 Blowouts as a Distinct Mode
 
 Blowouts are not lesser games — they are a different mode:
 - **Garbage time signal:** When a game reaches blowout territory, a visual signal indicates the coach can safely experiment
