@@ -1,79 +1,10 @@
 ---
-title: Game Concept
+title: Hoop Dynasty - The Exhibition Game Loop
 ---
 
-This document captures the core game concept as resolved through a structured design interview. It supersedes all earlier open questions on genre and mechanics. The narration system defined in [3-storyline.md](3-storyline.md) remains in full effect and is not repeated here — this document addresses only the mechanical and structural layer.
+## 1. The Exhibition Game Loop
 
----
-
-## 1. Genre Identity
-
-**Primary genre: Basketball Coaching Roguelite.**
-
-The game is a roguelite first. The season is the run. The coaching career is the meta-progression. The card systems (coaching toolkit, player development) are features of the roguelite, not the primary genre framing.
-
-> *"A basketball coaching roguelite — build your roster and coaching toolkit across seasons, manage your team through live card-based crisis moments, and watch unique stories emerge from every run."*
-
-Secondary genre influences, in order of structural weight:
-- **Roguelite** — season-as-run structure, meta-progression, natural roster reset through contracts/aging/injury
-- **Deck Building** — card collection and hand construction for the coaching toolkit; compatible development cards per player archetype
-- **Auto Battler** — the live simulation with player-driven crisis intervention; team-as-build tested against opposition
-- **RPG** — coach-as-protagonist with persistent identity, narrative weight, legacy accumulation
-
----
-
-## 2. The Protagonist Frame
-
-The player is the **coach/GM** — a persistent character whose identity, reputation, and toolkit accumulate across seasons and across runs. The coach is not a neutral observer. They are a character with a philosophy, a history, and a legacy.
-
-The team is the run. The coach is the meta-progression.
-
-This resolves the prior tension between single-protagonist RPG focus and ensemble franchise storytelling: the coach is the anchor character, the players and the league are the ensemble. The coach's decisions are what produce the stories; the players and events are the cast.
-
----
-
-## 3. The Season Structure
-
-### 3.1 Season as Roguelite Run
-
-Each season is a self-contained story chapter. It has a beginning (roster assembly, coaching philosophy selection), a middle (the regular season), a climax (the playoffs), and an end (contracts expire, the season's story closes). The coach persists; the roster is largely rebuilt.
-
-**What resets at season end:**
-- Most of the roster (contracts expire; players age, retire, or leave for better opportunities)
-- The situation card hand (rebuilt each season through between-game decisions)
-- The coach's job (not guaranteed — performance determines which offers arrive)
-
-**What persists:**
-- The coaching identity and reputation (affects free agent attraction, trade leverage, job offers)
-- Identity Cards (the coaching legacy toolkit — see Section 6)
-- The historical record (league lore, rivalries, narrative archive — see [3-storyline.md](3-storyline.md))
-- Cross-run unlocked Identity Cards (available to future coaching runs as starting options)
-
-### 3.2 Natural Roster Churn
-
-Roster resets are not arbitrary permadeath. They emerge from realistic basketball conditions:
-- A player at the end of their career retires
-- An injury-prone player fades out of the league
-- A player who didn't receive playing time won't re-sign
-- A star player demands a trade or signs elsewhere for more money
-
-The coach actively manages this: contract negotiation is a between-game action during the off-season phase. The player decides who to pursue, who to let go, and who to fight to keep. This creates natural continuity (a beloved player returning) and natural loss (a cornerstone leaving for a rival).
-
-### 3.3 Coaching Free Agency
-
-At season end, the coach enters their own free agency:
-- **2–3 curated offers** arrive, shaped by the coach's reputation and philosophical profile (a defensive coach gets offered defense-minded teams)
-- Returning to the prior team is one possible offer — not guaranteed if performance was poor
-- Better teams become available as reputation grows
-- A coach can see pending offers before the final games of the season, making the last week mechanically meaningful: a coach fighting for their job, or turning down a better offer out of loyalty, is a real scenario
-
-The player can also start a new save as a different coaching identity — a fully fresh run with different starting philosophy and style.
-
----
-
-## 4. The Exhibition Game Loop
-
-### 4.1 Overview
+### 1.1 Overview
 
 The exhibition game is the core session unit. It is a live simulation with two active layers: a **background planning layer** (ongoing, low-urgency) and a **foreground crisis layer** (triggered, high-urgency). The player watches the simulation unfold and manages both layers simultaneously.
 
@@ -85,7 +16,7 @@ The exhibition game is the core session unit. It is a live simulation with two a
 
 There is no skip and no auto-resolve. Every game is played. Blowouts are fast, not absent.
 
-### 4.2 The Simulation Model
+### 1.2 The Simulation Model
 
 The game uses an **action-driven simulation** coordinated by a central controller. Possessions are logical groupings of actions — each possession runs an interleaved chain of offensive and defensive micro-decisions until a terminal event fires or the shot clock expires. The presentation layer is a synchronous consumer of the simulation's output, paced by the controller.
 
@@ -309,14 +240,14 @@ Recovery rate is modulated by `minutes_played` — a player who has played heavy
 
 ##### Display and thresholds
 
-Fatigue is displayed as a continuous bar on each player card (bleeds into the card border — see §4.4). The bar is a direct readout of the cumulative fatigue score, not a discrete state system.
+Fatigue is displayed as a continuous bar on each player card (bleeds into the card border — see §1.4). The bar is a direct readout of the cumulative fatigue score, not a discrete state system.
 
 Two thresholds sit on top of the continuous bar:
 
 | Threshold | Level | Effect |
 |---|---|---|
 | **Warning** | ~60% fatigue | Bar changes colour. Crisis Engine begins monitoring this player for injury risk. No hard consequence yet — coaching signal only. |
-| **Critical** | ~85% fatigue | Injury risk spike activates. Performance penalties in the scoring functions are steepest here. Crisis Engine can fire an injury/health scare window if a contact action occurs (see §4.6 crisis trigger table). |
+| **Critical** | ~85% fatigue | Injury risk spike activates. Performance penalties in the scoring functions are steepest here. Crisis Engine can fire an injury/health scare window if a contact action occurs (see §1.6 crisis trigger table). |
 
 **V1:** Two thresholds, continuous bar, colour change at warning. Injury risk at critical is already stubbed in the crisis trigger list.
 
@@ -414,17 +345,17 @@ The simulation and presentation are synchronous. The controller produces one act
 
 Background layer changes (rotation, scheme) made by the player mid-possession are queued with `effective_when: next_possession` and applied cleanly at the possession boundary. The simulation never sees a mid-action state mutation.
 
-### 4.3 Heat: Performance Indicator System
+### 1.3 Heat: Performance Indicator System
 
 Heat is the primary per-player performance indicator. It is a rolling signal of recent in-game performance, displayed as three visible states: **Cold**, **Neutral**, and **Hot**.
 
 #### Signal production
 
-Heat is fed directly by the **Attribution Engine** output. After each possession is finalised, the Attribution Engine computes a chained delta score for every player on the floor (see §4.2 — Full possession attribution). Each player's possession score is the direct input to their Heat rolling window. There is no separate Heat delta table — the attribution model is the single source of per-player performance scoring, consumed by both Heat and the Recency Tracker.
+Heat is fed directly by the **Attribution Engine** output. After each possession is finalised, the Attribution Engine computes a chained delta score for every player on the floor (see §1.2 — Full possession attribution). Each player's possession score is the direct input to their Heat rolling window. There is no separate Heat delta table — the attribution model is the single source of per-player performance scoring, consumed by both Heat and the Recency Tracker.
 
 Heat is computed as a rolling weighted score across the **last 5 possessions** for that player. Deltas chain additively within a possession: a player can accumulate multiple positive and negative contributions from a single possession depending on their role and what happened. This separation of action quality from outcome ensures a player is credited for a good shot that happened to miss, and penalised for a bad shot that happened to go in.
 
-For the full delta table see §4.2 — Full possession attribution. Representative net examples:
+For the full delta table see §1.2 — Full possession attribution. Representative net examples:
 
 - Good screen + ball handler good decision + shot made: **+2.0** (screener +0.5, handler +1.0, shooter +1.5)
 - Corner shooter gravity held defender + good look + shot missed: **+0.3** (+0.3 gravity, +0.5 look, -0.5 miss)
@@ -493,7 +424,7 @@ Sustained Heat history across a full season shapes macro outcomes:
 - **Narrative tag changes** — a breakout hot season can unlock tags (`breakout-star`, `clutch-performer`); sustained cold risks losing a positive tag or gaining a negative one
 - **Coach reputation contribution** — developing a player who ran consistently hot contributes to the coach's reputation score, making it easier to attract similar talent in future seasons
 
-### 4.4 The Court Display
+### 1.4 The Court Display
 
 The primary visual surface is a **static 5v5 card formation**:
 - Ten player cards (5 per side), displayed in a slightly tilted/rotated layout to create an illusion of depth
@@ -504,13 +435,13 @@ The primary visual surface is a **static 5v5 card formation**:
 **Live indicators on each card:**
 - Fatigue bar (bleeds into card border as the game progresses)
 - Foul count
-- Heat (performance indicator — see §4.3)
+- Heat (performance indicator — see §1.3)
 - Matchup line pulse (activates when a matchup is being exploited or a defensive mismatch is active)
 - Crisis indicator (glows when a crisis event is tied to that player)
 
 **Ball indicator:** A glowing marker rests on the attacking side's formation to indicate possession. Possession changes flip the indicator. No physical card movement is required.
 
-### 4.5 The Background Planning Layer
+### 1.5 The Background Planning Layer
 
 Always available during the game. The player is not forced to interact, but informed players will:
 
@@ -525,7 +456,7 @@ Always available during the game. The player is not forced to interact, but info
 - Scheme changes have a lag — players need a possession or two to adjust
 - The active scheme changes the card formation layout on the court display, giving the opponent the same visual feedback they'd get from their scouting
 
-### 4.6 The Crisis Layer
+### 1.6 The Crisis Layer
 
 **What triggers a crisis window:**
 
@@ -554,7 +485,7 @@ The player responds using their **situation card hand** (5 cards selected pre-ga
 
 Timeouts are a limited economy: spending one early saves a crisis, but the fourth quarter with no timeouts left is a real consequence. The economic decision (which card to spend, whether to burn a timeout for more options) is the primary skill of the crisis layer.
 
-### 4.7 Blowouts as a Distinct Mode
+### 1.7 Blowouts as a Distinct Mode
 
 Blowouts are not lesser games — they are a different mode:
 - **Garbage time signal:** When a game reaches blowout territory, a visual signal indicates the coach can safely experiment
@@ -564,122 +495,3 @@ Blowouts are not lesser games — they are a different mode:
 - **Elevated story event probability:** Chemistry moments, breakout performances by secondary players, and milestone events are more likely to fire during garbage time
 
 Blowouts are when secondary characters get their stories.
-
----
-
-## 5. The Between-Game Layer
-
-### 5.1 Structure
-
-After each game, and before the next, the player moves through a **fixed short sequence** with one meaningful decision slot. This is the casual layer — completable in under 5 minutes — with the open hub always available for deeper engagement.
-
-**Fixed sequence:**
-1. **Postgame summary** — key narrative flashes from the narrator voices; injury and fatigue flags; development events that fired
-2. **Roster check** — one visible urgent item (injured player, chemistry event, player morale flag)
-3. **One free decision** — a single contextually gated action (see 5.2)
-4. **Opponent scouting preview** — partial view of the next opponent's visible formation and known players
-5. **Pre-game setup** — select 5 situation cards for the game hand; confirm rotation queue; set opening scheme
-
-### 5.2 The Context-Gated Decision
-
-The one free decision is not always the same menu. Available options are determined by the current season phase and events:
-
-| Context | Available actions |
-|---|---|
-| Regular season, healthy roster | Training session, film room scouting, development card application |
-| Player injured | Healing/recovery card, rest decision, emergency signing |
-| Free agency period | Sign free agents, contract negotiations, trade offers |
-| Pre-draft period | Draft scouting, prospect development |
-| Post-blowout win | Bonus development opportunity (bench player who performed) |
-| Pre-playoff | Extra scouting action, scheme refinement |
-
-The constrained menu makes each decision meaningful. The player cannot do everything — they must choose.
-
-### 5.3 Scouting and Information Decay
-
-**Own scheme:** Always fully visible. The player chose it.
-
-**Opponent formation:** Always visible on the court display. The player can see the scheme shape.
-
-**Opponent's hidden information** (specific synergy bonuses, rotation tendencies, bench patterns): Revealed only through:
-- Prior film room scouting (between-game action)
-- Experience from previous games against this team — the more times you've played a team, the more information is automatically revealed
-- Specific scouting cards in the situation hand ("Film Room Read")
-
-**Stale scouting is a real risk:** A team that traded away their aging franchise player mid-season has a different scheme profile than their earlier scouting report suggested. Meeting a familiar opponent in the playoffs after a major roster change is a genuine surprise and challenge.
-
----
-
-## 6. The Card Systems
-
-Three distinct card types share a unified visual language. All cards look like cards; their type and tier determine their function.
-
-### 6.1 Player Cards (Dossiers)
-
-Player cards are not played from a hand. They are persistent objects representing a player:
-- Narrative tags (from the tag vocabulary in [3-storyline.md](3-storyline.md))
-- Attributes and archetype
-- Career history and relationship tags
-- Compatibility flags (which development cards are valid for this player)
-
-Player cards appear on the court display, in the roster screen, and in the historical record. Discovering a player through scouting reveals their card — a moment of genuine exploration and collection. The card's art and presentation reflect the player's archetype, making the roster visually readable at a glance.
-
-### 6.2 Situation Cards (Coaching Crisis Hand)
-
-The coaching toolkit for in-game crisis management:
-- Rebuilt each season through between-game decisions (training sessions, film room work, scouting reports, narrative events)
-- ~15–20 owned per season; 5 selected pre-game as the active hand
-- Reset at season end
-- Examples: "Ice the Shooter," "Second Wind," "Film Room Read," "Locker Room Speech," "Ankle Treatment," "Switch the Scheme"
-
-Situation cards are what the coaching philosophy looks like in practice. A defensive coach who built their season toolkit differently has different crisis options than a pace-and-space coach.
-
-### 6.3 Development Cards (Player Power-Ups)
-
-Applied between games to individual players:
-- Compatible with specific player types and archetypes only (a `positionless-forward` can use development cards a `3d-specialist` cannot, and vice versa)
-- Create the core tension: invest in developing an existing player, or trade them for a new one who fits the roster better
-- Examples: "Elite Shooting Camp," "Defensive Footwork Drills," "Mentorship" (requires a veteran player on the roster), "New Shoes" (reduces injury risk for one season), "Film Study" (reveals a hidden player tag)
-- Some development cards are compatible with multiple archetypes; the most powerful are narrowly specific
-
-### 6.4 Identity Cards (Coaching Legacy)
-
-The persistent meta-progression layer:
-- Collected across seasons and runs through legacy achievements
-- Up to ~20 owned across a coaching career
-- **Only 3 can be slotted per season** — selected at the start of each season, locked for its duration
-- Persist across seasons and are available in new runs from the same coaching career
-- Cross-run unlocks (from prior save files) are available as starting options in new runs
-- Examples: "Player Whisperer" (once per season, retain a player who would otherwise leave), "System Prophet" (unlocks a unique scheme), "Clutch Caller" (crisis window visible one possession earlier), "The Eye" (one free hidden player tag revealed per draft pick)
-
-Identity Cards replace each other as the coach evolves — the library of 20 allows meaningful selection of 3, not unlimited accumulation of power.
-
----
-
-## 7. Resolved Design Tensions
-
-| Tension | Resolution |
-|---|---|
-| Single protagonist (RPG) vs. ensemble franchise | Coach is protagonist + anchor; players and league are ensemble |
-| Timing pressure vs. card economy skill | Timing creates urgency and engagement; economic card decisions are the actual skill |
-| Casual sessions vs. deep engagement | Fixed 5-step post/pre-game sequence for casual; open hub always available for depth |
-| Roguelite resets vs. narrative attachment | Roster resets naturally (contracts, aging); coach identity, rivalries, and league history persist |
-| Blowouts as dead time vs. meaningful play | Blowouts are a distinct mode: development sessions + elevated story event probability |
-| Opponent scheme visibility vs. scouting value | Formation always visible; hidden bonuses revealed only through scouting or experience |
-| Identity card accumulation vs. run freshness | Collect ~20; slot only 3 per season; full library available but always constrained |
-
----
-
-## 8. Open Questions
-
-| Question | Notes |
-|---|---|
-| Situation card reset mechanism at season end | Do some situation cards carry over (earned through player relationships)? Decision deferred. |
-| Draft and rookie scouting loop | The discovery mechanic for new players needs its own design session. |
-| League simulation depth | How much does the rest of the league simulate between games? Rival teams need enough depth to produce the rival franchise stories from [3-storyline.md](3-storyline.md). |
-| Multiplayer or single-player only | Document 2 notes single-player focus; no decision required now but should be explicitly deferred rather than assumed. |
-| Platforms | Not addressed. Casual session length and card visual language suggest mobile viability alongside desktop. |
-| Attribute and tag interaction model | How attributes are defined, scaled, and combined with tags to derive player fit values. Deferred to its own design session. |
-| Defensive simulation | Resolved. Mirror model with weighted scoring function, defensive response vocabulary, and proximity function. See §4.2 — Defensive simulation. |
-| Fatigue model | Resolved. Accumulation function, recovery schedule, display thresholds. See §4.2 — Fatigue model. |
-| Play type action budgets | Base shot clock budget per play type (e.g. transition vs. half-court set). Interface supports variable budgets from day one; calibration deferred. |
