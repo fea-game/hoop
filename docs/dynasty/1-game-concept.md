@@ -10,7 +10,7 @@ This document covers genre identity and the protagonist frame — the foundation
 - [3-game-loop.md](./3-game-loop.md) — the exhibition game simulation, Heat system, court display, crisis layer, and blowout mode
 - [4-between-games.md](./4-between-games.md) — the post/pre-game sequence, context-gated decisions, and scouting
 - [5-card-systems.md](./5-card-systems.md) — all four card types and their unified visual language
-- [6-design-notes.md](./6-design-notes.md) — resolved design tensions and open questions
+- [0-design-notes.md](./0-design-notes.md) — resolved design tensions and open questions
 
 ---
 
