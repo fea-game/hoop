@@ -19,10 +19,12 @@ Player cards appear on the court display, in the roster screen, and in the histo
 The coaching toolkit for in-game crisis management:
 - Rebuilt each season through between-game decisions (training sessions, film room work, scouting reports, narrative events)
 - ~15–20 owned per season; 5 selected pre-game as the active hand
-- Reset at season end
+- Reset at season end — with one exception (see below)
 - Examples: "Ice the Shooter," "Second Wind," "Film Room Read," "Locker Room Speech," "Ankle Treatment," "Switch the Scheme"
 
 Situation cards are what the coaching philosophy looks like in practice. A defensive coach who built their season toolkit differently has different crisis options than a pace-and-space coach.
+
+**Relationship-tagged carry-over:** When a player earns a Coach–Player relationship tag (e.g. `trusted-veteran`, `locker-room-anchor`), it may unlock a relationship-tagged situation card specific to that player. If that player is still on the roster at the start of the following season, the card carries over into the new season's owned pool. If the player leaves, the card expires. Up to 3 relationship-tagged cards may carry over at season start. See [10-relationships.md](./10-relationships.md).
 
 ## 3. Development Cards (Player Power-Ups)
 

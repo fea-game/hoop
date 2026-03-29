@@ -4,7 +4,7 @@ title: Hoop Dynasty - The Between-Game Layer
 
 ## 1. Structure
 
-After each game, and before the next, the player moves through a **fixed short sequence** with one meaningful decision slot. This is the casual layer — completable in under 5 minutes — with the open hub always available for deeper engagement.
+After each game, and before the next, the player moves through a **fixed short sequence** with one meaningful decision slot. The sequence is completable in under 5 minutes.
 
 **Fixed sequence:**
 1. **Postgame summary** — key narrative flashes from the narrator voices; injury and fatigue flags; development events that fired
@@ -21,7 +21,7 @@ The one free decision is not always the same menu. Available options are determi
 |---|---|
 | Regular season, healthy roster | Training session, film room scouting, development card application |
 | Player injured | Healing/recovery card, rest decision, emergency signing |
-| Free agency period | Sign free agents, contract negotiations, trade offers |
+| Free agency period | Sign free agents, contract negotiations |
 | Pre-draft period | Draft scouting, prospect development |
 | Post-blowout win | Bonus development opportunity (bench player who performed) |
 | Pre-playoff | Extra scouting action, scheme refinement |
