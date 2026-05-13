@@ -1,0 +1,390 @@
+---
+// GoalsMatrix.astro — Sunburst chart visualising the goals / promise priority matrix.
+//
+// Inner ring: pillars, arc width proportional to intent_weight.
+// Outer ring: promises, evenly divided within each pillar.
+// Alignment marker: a radial tick on each pillar arc showing actual_weight
+//   vs intent_weight — displaced clockwise when actual > intent.
+//
+// All computation is server-side; zero client JS.
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface Promise {
+  id: string;
+  name: string;
+}
+
+interface Pillar {
+  id: string;
+  name: string;
+  intent_weight: number;  // 0–100 %
+  actual_weight: number;  // 0–100 %
+  promises: Promise[];
+}
+
+interface ColColor {
+  light: string;
+  dark: string;
+}
+
+interface Props {
+  pillars: Pillar[];
+  colors?: ColColor[];
+}
+
+const {
+  pillars,
+  colors = [
+    { dark: '#f07070', light: '#c73030' }, // red
+    { dark: '#5dd4c8', light: '#1a9e94' }, // teal
+    { dark: '#f5c05a', light: '#c9921a' }, // amber
+    { dark: '#a078e8', light: '#5828b0' }, // indigo
+    { dark: '#70d490', light: '#2a9e50' }, // green
+  ],
+} = Astro.props;
+
+// ── Layout constants ──────────────────────────────────────────────────────────
+
+const SIZE       = 600;
+const CX         = SIZE / 2;
+const CY         = SIZE / 2;
+
+const R_INNER_0  = 90;   // inner radius of pillar ring
+const R_INNER_1  = 190;  // outer radius of pillar ring / inner radius of promise ring
+const R_OUTER    = 265;  // outer radius of promise ring
+const R_LABEL_P  = 140;  // pillar label radius (midpoint of inner ring)
+const R_LABEL_PR = 228;  // promise label radius (midpoint of outer ring)
+const R_TICK_IN  = R_INNER_0 - 8;   // actual-weight tick inner end
+const R_TICK_OUT = R_INNER_0 - 2;   // actual-weight tick outer end
+
+const GAP_RAD    = 0.012; // radians gap between adjacent arcs
+
+// ── Math helpers ──────────────────────────────────────────────────────────────
+
+const TWO_PI = Math.PI * 2;
+
+function toRad(pct: number, total = 100) {
+  return (pct / total) * TWO_PI;
+}
+
+function polarX(r: number, angle: number) {
+  return CX + r * Math.cos(angle);
+}
+
+function polarY(r: number, angle: number) {
+  return CY + r * Math.sin(angle);
+}
+
+/** SVG arc path for a donut segment. */
+function arcPath(
+  r0: number, r1: number,
+  startAngle: number, endAngle: number
+): string {
+  const large = endAngle - startAngle > Math.PI ? 1 : 0;
+  const x0o = polarX(r1, startAngle), y0o = polarY(r1, startAngle);
+  const x1o = polarX(r1, endAngle),   y1o = polarY(r1, endAngle);
+  const x1i = polarX(r0, endAngle),   y1i = polarY(r0, endAngle);
+  const x0i = polarX(r0, startAngle), y0i = polarY(r0, startAngle);
+  return [
+    `M ${x0o} ${y0o}`,
+    `A ${r1} ${r1} 0 ${large} 1 ${x1o} ${y1o}`,
+    `L ${x1i} ${y1i}`,
+    `A ${r0} ${r0} 0 ${large} 0 ${x0i} ${y0i}`,
+    'Z',
+  ].join(' ');
+}
+
+// ── Build layout ──────────────────────────────────────────────────────────────
+
+// Total intent weight (should be ~100, but normalise defensively).
+const totalIntent = pillars.reduce((s, p) => s + p.intent_weight, 0);
+const totalActual = pillars.reduce((s, p) => s + p.actual_weight, 0);
+
+// Start at top (−π/2).
+const START_ANGLE = -Math.PI / 2;
+
+interface PillarLayout {
+  pillar: Pillar;
+  colorIndex: number;
+  startAngle: number;
+  endAngle: number;
+  midAngle: number;
+  actualMidAngle: number;  // where actual_weight midpoint falls on the intent arc
+  promises: PromiseLayout[];
+}
+
+interface PromiseLayout {
+  promise: Promise;
+  startAngle: number;
+  endAngle: number;
+  midAngle: number;
+}
+
+let cursor = START_ANGLE;
+const layout: PillarLayout[] = [];
+
+pillars.forEach((pillar, i) => {
+  const pillarSpan = toRad(pillar.intent_weight, totalIntent) - GAP_RAD;
+  const pillarStart = cursor + GAP_RAD / 2;
+  const pillarEnd   = pillarStart + pillarSpan;
+  const pillarMid   = (pillarStart + pillarEnd) / 2;
+
+  // Actual-weight midpoint: scale actual span onto the same arc range as intent.
+  const actualSpan = toRad(pillar.actual_weight, totalActual) - GAP_RAD;
+  const actualMid  = pillarStart + actualSpan / 2;
+
+  // Divide pillar arc evenly across its promises.
+  const n = pillar.promises.length;
+  const promiseSpan = pillarSpan / n;
+  const promises: PromiseLayout[] = pillar.promises.map((pr, j) => {
+    const prStart = pillarStart + j * promiseSpan + GAP_RAD / 2;
+    const prEnd   = prStart + promiseSpan - GAP_RAD;
+    return {
+      promise: pr,
+      startAngle: prStart,
+      endAngle:   prEnd,
+      midAngle:   (prStart + prEnd) / 2,
+    };
+  });
+
+  layout.push({
+    pillar,
+    colorIndex: i,
+    startAngle: pillarStart,
+    endAngle:   pillarEnd,
+    midAngle:   pillarMid,
+    actualMidAngle: actualMid,
+    promises,
+  });
+
+  cursor += toRad(pillar.intent_weight, totalIntent);
+});
+
+// ── Label helpers ─────────────────────────────────────────────────────────────
+
+/** Split a string into lines of max `max` chars, breaking at spaces. */
+function wrapText(text: string, max = 14): string[] {
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let cur = '';
+  for (const w of words) {
+    if ((cur + (cur ? ' ' : '') + w).length <= max) {
+      cur += (cur ? ' ' : '') + w;
+    } else {
+      if (cur) lines.push(cur);
+      cur = w;
+    }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+const LINE_H = 13; // px between label lines
+
+/** Render multi-line text centred at (x, y). */
+function textLines(
+  lines: string[],
+  x: number, y: number,
+  cls: string
+): string {
+  const totalH = (lines.length - 1) * LINE_H;
+  return lines.map((line, i) =>
+    `<text x="${x.toFixed(1)}" y="${(y - totalH / 2 + i * LINE_H + 4).toFixed(1)}" class="${cls}" text-anchor="middle" dominant-baseline="middle">${line}</text>`
+  ).join('\n    ');
+}
+
+// ── Color accessors ───────────────────────────────────────────────────────────
+
+const colDark  = (i: number) => colors[i % colors.length].dark;
+const colLight = (i: number) => colors[i % colors.length].light;
+---
+
+<figure class="chart-figure">
+  <svg viewBox={`0 0 ${SIZE} ${SIZE}`} role="img" aria-label="Goals and promises priority matrix" class="chart-svg">
+
+    <!-- ── Pillar arcs (inner ring) ─────────────────────────────────────────── -->
+    {layout.map(({ pillar, colorIndex, startAngle, endAngle }) => (
+      <path
+        d={arcPath(R_INNER_0, R_INNER_1, startAngle, endAngle)}
+        style={`--fill-dark:${colDark(colorIndex)};--fill-light:${colLight(colorIndex)}`}
+        class="pillar-arc"
+      />
+    ))}
+
+    <!-- ── Promise arcs (outer ring) ────────────────────────────────────────── -->
+    {layout.map(({ colorIndex, promises }) =>
+      promises.map(({ startAngle, endAngle }) => (
+        <path
+          d={arcPath(R_INNER_1, R_OUTER, startAngle, endAngle)}
+          style={`--fill-dark:${colDark(colorIndex)};--fill-light:${colLight(colorIndex)}`}
+          class="promise-arc"
+        />
+      ))
+    )}
+
+    <!-- ── Actual-weight tick marks ──────────────────────────────────────────── -->
+    <!-- A short radial line at the actual_weight midpoint on the pillar arc.     -->
+    <!-- Offset from the intent midpoint visually signals alignment gap.          -->
+    {layout.map(({ pillar, colorIndex, startAngle, endAngle, actualMidAngle }) => {
+      const ix = polarX(R_TICK_IN,  actualMidAngle);
+      const iy = polarY(R_TICK_IN,  actualMidAngle);
+      const ox = polarX(R_TICK_OUT, actualMidAngle);
+      const oy = polarY(R_TICK_OUT, actualMidAngle);
+      const diff = Math.abs(pillar.actual_weight - pillar.intent_weight);
+      const tickClass = diff < 1.5 ? 'tick-aligned' : (pillar.actual_weight > pillar.intent_weight ? 'tick-over' : 'tick-under');
+      return (
+        <line
+          x1={ix.toFixed(1)} y1={iy.toFixed(1)}
+          x2={ox.toFixed(1)} y2={oy.toFixed(1)}
+          class={`actual-tick ${tickClass}`}
+        />
+      );
+    })}
+
+    <!-- ── Centre hub ────────────────────────────────────────────────────────── -->
+    <circle cx={CX} cy={CY} r={R_INNER_0 - 2} class="hub" />
+    <text x={CX} y={CY - 9}  class="hub-label" text-anchor="middle" dominant-baseline="middle">Goals</text>
+    <text x={CX} y={CY + 9}  class="hub-label" text-anchor="middle" dominant-baseline="middle">Matrix</text>
+
+    <!-- ── Pillar labels ─────────────────────────────────────────────────────── -->
+    {layout.map(({ pillar, midAngle }) => {
+      const x = polarX(R_LABEL_P, midAngle);
+      const y = polarY(R_LABEL_P, midAngle);
+      const lines = wrapText(pillar.name, 12);
+      return (
+        <Fragment set:html={textLines(lines, x, y, 'pillar-label')} />
+      );
+    })}
+
+    <!-- ── Promise labels ────────────────────────────────────────────────────── -->
+    {layout.flatMap(({ promises }) =>
+      promises.map(({ promise, midAngle }) => {
+        const x = polarX(R_LABEL_PR, midAngle);
+        const y = polarY(R_LABEL_PR, midAngle);
+        const lines = wrapText(promise.id + ' ' + promise.name, 11);
+        return (
+          <Fragment set:html={textLines(lines, x, y, 'promise-label')} />
+        );
+      })
+    )}
+
+    <!-- ── Weight legend ─────────────────────────────────────────────────────── -->
+    <text x={CX} y={SIZE - 28} class="legend-text" text-anchor="middle">
+      Arc width = intent weight  ·  tick = actual weight
+    </text>
+    <line x1={CX - 70} y1={SIZE - 14} x2={CX - 58} y2={SIZE - 14} class="actual-tick tick-aligned" />
+    <text x={CX - 54} y={SIZE - 14} class="legend-small" dominant-baseline="middle">aligned</text>
+    <line x1={CX - 12} y1={SIZE - 14} x2={CX} y2={SIZE - 14} class="actual-tick tick-over" />
+    <text x={CX + 4} y={SIZE - 14} class="legend-small" dominant-baseline="middle">over</text>
+    <line x1={CX + 38} y1={SIZE - 14} x2={CX + 50} y2={SIZE - 14} class="actual-tick tick-under" />
+    <text x={CX + 54} y={SIZE - 14} class="legend-small" dominant-baseline="middle">under</text>
+
+  </svg>
+</figure>
+
+<style>
+  .chart-figure { margin: 1.5rem 0; }
+  .chart-svg    { display: block; width: 100%; height: auto; }
+
+  /* ── Pillar arcs ──────────────────────────────────────────────────────────── */
+  .pillar-arc {
+    fill: var(--fill-light);
+    stroke: none;
+  }
+  :global([data-theme="dark"]) .pillar-arc,
+  :global(.sl-theme-dark) .pillar-arc {
+    fill: var(--fill-dark);
+  }
+
+  /* ── Promise arcs (lighter / more transparent version of pillar colour) ───── */
+  .promise-arc {
+    fill: var(--fill-light);
+    opacity: 0.35;
+    stroke: none;
+  }
+  :global([data-theme="dark"]) .promise-arc,
+  :global(.sl-theme-dark) .promise-arc {
+    fill: var(--fill-dark);
+    opacity: 0.45;
+  }
+
+  /* ── Hub ──────────────────────────────────────────────────────────────────── */
+  .hub {
+    fill: oklch(96% 0 0);
+    stroke: oklch(80% 0 0);
+    stroke-width: 1;
+  }
+  :global([data-theme="dark"]) .hub,
+  :global(.sl-theme-dark) .hub {
+    fill: oklch(18% 0 0);
+    stroke: oklch(40% 0 0);
+  }
+
+  .hub-label {
+    font-family: system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    fill: oklch(35% 0 0);
+    letter-spacing: 0.04em;
+  }
+  :global([data-theme="dark"]) .hub-label,
+  :global(.sl-theme-dark) .hub-label {
+    fill: rgba(255,255,255,0.7);
+  }
+
+  /* ── Labels ───────────────────────────────────────────────────────────────── */
+  .pillar-label {
+    font-family: system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    fill: oklch(98% 0 0);
+    pointer-events: none;
+  }
+  :global([data-theme="light"]) .pillar-label,
+  :global(.sl-theme-light) .pillar-label {
+    fill: oklch(12% 0 0);
+  }
+
+  .promise-label {
+    font-family: system-ui, sans-serif;
+    font-size: 8.5px;
+    font-weight: 500;
+    fill: oklch(25% 0 0);
+    pointer-events: none;
+  }
+  :global([data-theme="dark"]) .promise-label,
+  :global(.sl-theme-dark) .promise-label {
+    fill: rgba(255,255,255,0.82);
+  }
+
+  /* ── Actual-weight ticks ──────────────────────────────────────────────────── */
+  .actual-tick {
+    stroke-width: 2.5;
+    stroke-linecap: round;
+  }
+  .tick-aligned { stroke: #4caf50; }
+  .tick-over    { stroke: #ff9800; }
+  .tick-under   { stroke: #2196f3; }
+
+  /* ── Legend ───────────────────────────────────────────────────────────────── */
+  .legend-text {
+    font-family: system-ui, sans-serif;
+    font-size: 9px;
+    fill: oklch(45% 0 0);
+    opacity: 0.8;
+  }
+  :global([data-theme="dark"]) .legend-text,
+  :global(.sl-theme-dark) .legend-text {
+    fill: rgba(255,255,255,0.5);
+  }
+  .legend-small {
+    font-family: system-ui, sans-serif;
+    font-size: 8px;
+    fill: oklch(45% 0 0);
+  }
+  :global([data-theme="dark"]) .legend-small,
+  :global(.sl-theme-dark) .legend-small {
+    fill: rgba(255,255,255,0.5);
+  }
+</style>

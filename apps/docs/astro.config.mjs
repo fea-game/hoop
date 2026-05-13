@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import starlightThemeSix from "@six-tech/starlight-theme-six";
 import mermaid from "astro-mermaid";
 import remarkRewriteMdLinks from "./remark-rewrite-md-links.mjs";
 import { config } from "dotenv";
@@ -42,7 +41,7 @@ export default defineConfig({
   integrations: [
     mermaid({ autoTheme: true }),
     starlight({
-      plugins: [starlightThemeSix({})],
+      plugins: [],
       title: "@fea-game/Hoop",
       favicon: "/icons/icon-16x16.svg",
       logo: {
