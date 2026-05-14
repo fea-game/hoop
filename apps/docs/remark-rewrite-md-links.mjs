@@ -10,10 +10,10 @@
  *   /hoop/odyssey/2-motivation/1-inspiration.md   ← broken
  *
  * This plugin rewrites any href that:
- *   - ends with `.md` (optionally followed by `#anchor`)
+ *   - ends with `.md` or `.mdx` (optionally followed by `#anchor`)
  *   - is not an absolute URL (http/https)
  *
- * …by stripping the `.md` extension and prepending `../` so it becomes a
+ * …by stripping the `.md`/`.mdx` extension and prepending `../` so it becomes a
  * sibling-page reference that Starlight resolves correctly:
  *   1-inspiration.md#anchor  →  ../1-inspiration/#anchor
  *
@@ -34,10 +34,10 @@ export default function remarkRewriteMdLinks() {
 
       // Match optional leading slash + path ending in .md + optional #anchor
       // e.g.  "1-inspiration.md#foo"  or  "/1-inspiration.md#foo"
-      const match = href.match(/^(\/?)(.+?)\.md(#.*)?$/);
+      const match = href.match(/^(\/?)(.+?)\.mdx?(\/?(#.*))?$/);
       if (!match) return;
 
-      const [, leadingSlash, pathWithoutExt, anchor = ""] = match;
+      const [, leadingSlash, pathWithoutExt, , anchor = ""] = match;
 
       if (leadingSlash) {
         // Absolute-style path like /1-inspiration.md  → keep as-is but strip .md

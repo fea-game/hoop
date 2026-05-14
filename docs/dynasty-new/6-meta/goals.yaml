@@ -12,12 +12,21 @@
 #     promises[]    — Player-facing commitments the game makes under this pillar.
 #
 #   decisions[]     — Resolved design decisions that implement the promises.
-#     id            — T1–T7 (tensions) or Q1–Q14 (questions). Matches 6-meta/1-design-notes.md.
+#     id            — D1–D7 (tensions) or D8–D21 (questions). Matches 6-meta/1-design-notes.md.
 #     summary       — One-line description of the decision.
 #     source_ref    — File where the decision is documented.
 #     impact        — Foundational weight: 3 = HIGH, 2 = MEDIUM, 1 = LOW.
 #                     See 6-meta/weight-derivation-prompt.md for scoring rules.
 #     pillars       — List of pillar IDs this decision serves.
+#     doc_href      — Absolute site path to the section in the docs site where the decision
+#                     is documented. Format: "/dynasty-new/<section>/<page>/#<heading-slug>"
+#                     Rules:
+#                       - Always absolute (starts with /dynasty-new/).
+#                       - No .md/.mdx extension — Starlight strips extensions from URLs.
+#                       - Trailing slash before the anchor: /<page>/#<anchor>.
+#                       - Anchor = heading text lowercased, spaces → hyphens, punctuation removed.
+#                     Example: "/dynasty-new/4-mechanics/3-roles/#1-offensive-roles"
+#                     See 6-meta/weight-derivation-prompt.md for full guidance.
 #
 # WEIGHT DERIVATION
 #   actual_weight per pillar = sum(impact scores for decisions that include that pillar)
@@ -149,128 +158,128 @@ pillars:
 # ── Resolved design decisions ──────────────────────────────────────────────────
 
 decisions:
-  - id: T1
+  - id: D1
     summary: "Coach as protagonist + ensemble cast — coach anchors the story; players and league are the cast."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/1-vision/2-game-concept/#2-the-protagonist-frame"
     impact: 3
     pillars: [storytelling, roguelite]
 
-  - id: T2
+  - id: D2
     summary: "Timing creates urgency; card economy is the actual skill — both coexist."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/3-loops/1-game-loop/#5-the-crisis-layer"
     impact: 3
     pillars: [crisis_play]
 
-  - id: T3
+  - id: D3
     summary: "Fixed 5-step post/pre-game sequence with one context-gated decision slot."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/3-loops/2-between-games/#2-the-context-gated-decision"
     impact: 2
     pillars: [crisis_play, roguelite]
 
-  - id: T4
+  - id: D4
     summary: "Roguelite resets emerge from basketball logic; coach identity and history persist."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/1-vision/3-season-structure/#2-natural-roster-churn"
     impact: 3
     pillars: [roguelite, storytelling, basketball_feel]
 
-  - id: T5
+  - id: D5
     summary: "Blowouts are a distinct mode: bench development + elevated story event probability."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/3-loops/1-game-loop/#6-blowouts-as-a-distinct-mode"
     impact: 2
     pillars: [crisis_play, storytelling, basketball_feel]
 
-  - id: T6
+  - id: D6
     summary: "Formation always visible; hidden bonuses (synergy, rotation) revealed through scouting."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/3-loops/2-between-games/#3-scouting-and-information-decay"
     impact: 2
     pillars: [collection, basketball_feel]
 
-  - id: T7
+  - id: D7
     summary: "Collect ~20 Identity Cards; slot only 3 per season — full library always constrained."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/2-structure/1-card-systems/#4-identity-cards-coaching-legacy"
     impact: 3
     pillars: [collection, roguelite]
 
-  - id: Q1
+  - id: D8
     summary: "10-tag offensive role vocabulary; auto-assigned in V1; morale mismatch detection."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/4-mechanics/3-roles/#1-offensive-roles"
     impact: 2
     pillars: [basketball_feel, crisis_play]
 
-  - id: Q2
+  - id: D9
     summary: "Contract resolution via morale, rival interest, role match; one negotiation pass per player."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/4-mechanics/5-contract-resolution/#1-the-acceptdecline-function"
     impact: 2
     pillars: [collection, storytelling, crisis_play, basketball_feel]
 
-  - id: Q3
+  - id: D10
     summary: "Max 2 active rivalries per team; oldest/least-intense displaced when cap is reached."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/2-structure/2-league-simulation/#33-rivalry-cap"
     impact: 1
     pillars: [storytelling, roguelite]
 
-  - id: Q4
+  - id: D11
     summary: "Team archetype re-evaluated at season start by re-running assignment function on current roster."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/2-structure/2-league-simulation/#23-archetype-evolution"
     impact: 1
     pillars: [basketball_feel, roguelite]
 
-  - id: Q5
+  - id: D12
     summary: "Relationship-tagged situation cards survive reset if linked player retained (cap: 3); expire on departure."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/4-mechanics/4-relationships/#3-carry-over-situation-cards"
     impact: 2
     pillars: [storytelling, collection, roguelite]
 
-  - id: Q6
+  - id: D13
     summary: "15 attributes across 5 domains; tags handle IQ, behavioral, specialisation, durability, and role traits."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/4-mechanics/2-player-model/#1-attributes"
     impact: 2
     pillars: [basketball_feel, collection]
 
-  - id: Q7
+  - id: D14
     summary: "Annual draft + persistent free agent pool; progressive scouting reveal via between-game slot."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/4-mechanics/6-draft-and-scouting/#2-scouting--prospect-evaluation"
     impact: 2
     pillars: [collection, roguelite, basketball_feel]
 
-  - id: Q8
+  - id: D15
     summary: "Defensive simulation via mirror model with weighted scoring, response vocabulary, and proximity function."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/4-mechanics/1-simulation-model/#7-defensive-simulation"
     impact: 2
     pillars: [basketball_feel, crisis_play]
 
-  - id: Q9
+  - id: D16
     summary: "7-tag defensive role vocabulary; defensive IQ tags; 6 named defensive schemes."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/4-mechanics/3-roles/#2-defensive-roles"
     impact: 1
     pillars: [basketball_feel, collection]
 
-  - id: Q10
+  - id: D17
     summary: "Fatigue accumulation function, recovery schedule, display thresholds."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/4-mechanics/1-simulation-model/#6-fatigue-model"
     impact: 2
     pillars: [basketball_feel, crisis_play]
 
-  - id: Q11
+  - id: D18
     summary: "Output-driven league sim: standings, player movements (no trades), trajectories, rivalries, notable events."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/2-structure/2-league-simulation/#1-player-movement"
     impact: 2
     pillars: [storytelling, basketball_feel, roguelite]
 
-  - id: Q12
+  - id: D19
     summary: "7-chapter off-season sequence; reputation tiers govern card economy; prestige vs. control tension."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/3-loops/3-off-season/#2-off-season-chapter-structure"
     impact: 3
     pillars: [roguelite, collection, storytelling, crisis_play]
 
-  - id: Q13
-    summary: "Coaching contract renewal is Chapter 1 of the off-season; prestige vs. control tension in offers."
-    source_ref: "6-meta/1-design-notes.md"
+  - id: D20
+    summary: "Coaching contract renewal is Chapter 0 of the off-season; prestige vs. control tension in offers."
+    doc_href: "/dynasty-new/3-loops/3-off-season/#13-prestige-vs-control"
     impact: 2
     pillars: [roguelite, storytelling]
 
-  - id: Q14
+  - id: D21
     summary: "Coach–Player and Player–Player relationship records persist indefinitely; synergies re-activate on reunion."
-    source_ref: "6-meta/1-design-notes.md"
+    doc_href: "/dynasty-new/4-mechanics/4-relationships/#1-relationship-axes"
     impact: 2
     pillars: [storytelling]

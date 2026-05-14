@@ -5,7 +5,7 @@ title: Hoop Dynasty - Game Concept
 This document covers genre identity and the protagonist frame — the foundational layer from which all other design follows.
 
 **Companion documents:**
-- [vision/2-season-structure.md](./season-structure.md) — the roguelite season arc, roster churn, and coaching free agency
+- [vision/2-season-structure.md](./3-season-structure.md) — the roguelite season arc, roster churn, and coaching free agency
 - [loops/1-game-loop.md](../3-loops/1-game-loop.md) — the exhibition game, crisis layer, and blowout mode
 - [loops/2-between-games.md](../3-loops/2-between-games.md) — the post/pre-game sequence, context-gated decisions, and scouting
 - [structure/1-card-systems.md](../2-structure/1-card-systems.md) — all four card types and their unified visual language

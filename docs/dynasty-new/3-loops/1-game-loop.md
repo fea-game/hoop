@@ -7,7 +7,7 @@ The exhibition game is the core session unit. It is a live simulation with two a
 For the simulation internals (service architecture, scoring functions, action chain, fatigue math) see [mechanics/1-simulation-model.md](../4-mechanics/1-simulation-model.md).
 
 **Related docs:**
-- [loops/2-between-games.md](./between-games.md) — what happens before and after each game
+- [loops/2-between-games.md](./2-between-games.md) — what happens before and after each game
 - [mechanics/1-simulation-model.md](../4-mechanics/1-simulation-model.md) — how the simulation works internally
 - [mechanics/3-roles.md](../4-mechanics/3-roles.md) — how offensive and defensive roles bias the simulation
 - [reference/3-scheme-vocabulary.md](../5-reference/3-scheme-vocabulary.md) — the named coaching schemes

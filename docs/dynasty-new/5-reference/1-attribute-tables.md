@@ -66,7 +66,7 @@ For how attributes feed into scoring functions see [mechanics/1-simulation-model
 |---|---|
 | Verticality | Redundant — expressed by `Block`, `Finishing`, `Offensive Rebounding`, and the `dunker` tag |
 | Durability | Expressed entirely through tags (`injury-prone`, `iron-man`, `high-motor`). A numeric attribute creates a dump-stat problem. |
-| IQ | Expressed through context-specific IQ tags. See [reference/2-tag-vocabulary.md](./tag-vocabulary.md) §2. |
+| IQ | Expressed through context-specific IQ tags. See [reference/2-tag-vocabulary.md](./2-tag-vocabulary.md) §2. |
 
 ---
 

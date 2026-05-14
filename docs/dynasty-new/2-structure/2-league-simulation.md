@@ -7,7 +7,7 @@ The league simulation is the world engine that runs beneath the player's season.
 The league sim is **output-driven**, not process-driven. It does not simulate full games for rival teams. Instead, it produces the outputs the game needs: standings, player movements, team trajectories, and notable events — all derived statistically from team strength ratings and a lightweight event engine.
 
 **Related docs:**
-- [vision/2-season-structure.md](../1-vision/2-season-structure.md) — how the season arc relates to the league world
+- [vision/2-season-structure.md](../1-vision/3-season-structure.md) — how the season arc relates to the league world
 - [mechanics/6-draft-and-scouting.md](../4-mechanics/6-draft-and-scouting.md) — how players enter the league
 - [mechanics/5-contract-resolution.md](../4-mechanics/5-contract-resolution.md) — how player movement is decided at season end
 

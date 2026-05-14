@@ -5,8 +5,8 @@ title: Hoop Dynasty - The Off-Season
 The off-season is a distinct phase between seasons. It is not an extension of the between-game loop — it has its own chapter structure, its own decision economy, and its own stakes. Where the between-game loop is about managing a season in motion, the off-season is about shaping the next one.
 
 **Related docs:**
-- [vision/2-season-structure.md](../1-vision/2-season-structure.md) — what resets and what persists between seasons
-- [loops/2-between-games.md](./between-games.md) — the in-season decision loop
+- [vision/2-season-structure.md](../1-vision/3-season-structure.md) — what resets and what persists between seasons
+- [loops/2-between-games.md](./2-between-games.md) — the in-season decision loop
 - [mechanics/5-contract-resolution.md](../4-mechanics/5-contract-resolution.md) — how individual contract decisions resolve
 - [mechanics/6-draft-and-scouting.md](../4-mechanics/6-draft-and-scouting.md) — the draft chapter detail
 - [structure/1-card-systems.md](../2-structure/1-card-systems.md) — Identity Cards, situation cards, development cards

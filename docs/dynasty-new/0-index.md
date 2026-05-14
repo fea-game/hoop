@@ -28,8 +28,8 @@ The game is a roguelite first. Secondary influences in order: deck building, aut
 
 Coming back after a break? Start here:
 
-1. **[vision/1-game-concept.md](1-vision/1-game-concept.md)** — What is this game? Genre, protagonist frame, core promise. (2 min)
-2. **[vision/2-season-structure.md](1-vision/2-season-structure.md)** — How the roguelite arc works. What resets, what persists. (2 min)
+1. **[vision/1-game-concept.md](1-vision/2-game-concept.md)** — What is this game? Genre, protagonist frame, core promise. (2 min)
+2. **[vision/2-season-structure.md](1-vision/3-season-structure.md)** — How the roguelite arc works. What resets, what persists. (2 min)
 3. **[loops/1-game-loop.md](3-loops/1-game-loop.md)** — The exhibition game: Heat system, crisis layer, blowout mode. (5 min)
 4. **[loops/2-between-games.md](3-loops/2-between-games.md)** — The 5-step between-game sequence and the context-gated decision. (2 min)
 5. **[loops/3-off-season.md](3-loops/3-off-season.md)** — The 7-chapter off-season. (5 min)
@@ -59,8 +59,8 @@ The most critical open items — resolve these before proceeding with related de
 ### vision/
 | File | Contents |
 |---|---|
-| [game-concept.md](1-vision/1-game-concept.md) | Genre identity, protagonist frame, the core promise |
-| [season-structure.md](1-vision/2-season-structure.md) | Roguelite season arc, what resets/persists, coaching free agency |
+| [game-concept.md](1-vision/2-game-concept.md) | Genre identity, protagonist frame, the core promise |
+| [season-structure.md](1-vision/3-season-structure.md) | Roguelite season arc, what resets/persists, coaching free agency |
 
 ### structure/
 | File | Contents |

@@ -5,8 +5,8 @@ title: Hoop Dynasty - The Between-Game Layer
 After each game, and before the next, the player moves through a **fixed short sequence** with one meaningful decision slot. The sequence is completable in under 5 minutes.
 
 **Related docs:**
-- [loops/1-game-loop.md](./game-loop.md) — what happens during the game
-- [loops/3-off-season.md](./off-season.md) — the extended decision sequence between seasons
+- [loops/1-game-loop.md](./1-game-loop.md) — what happens during the game
+- [loops/3-off-season.md](./3-off-season.md) — the extended decision sequence between seasons
 - [structure/1-card-systems.md](../2-structure/1-card-systems.md) — situation cards and development cards
 - [mechanics/6-draft-and-scouting.md](../4-mechanics/6-draft-and-scouting.md) — scouting mechanics
 
